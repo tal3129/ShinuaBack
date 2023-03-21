@@ -22,7 +22,7 @@ Order:
 - OrderedProducts: List[(ID,Amount)]
 """
 from datetime import datetime
-from typing import List, Dict
+from typing import List, Dict, Set
 from pydantic import BaseModel
 
 # Collection names
@@ -78,11 +78,23 @@ class Product(BaseDB):
     def COLLECTION_NAME():
         return PRODUCT_COLLECTION
 
+    def delete_from_db(self, db_handler):
+        for o in db_handler.get_collection_dict(ORDERS_COLLECTION):
+            if self.did in o.ordered_products:
+                o.ordered_products.pop(self.did)
+                o.update_to_db()
+        for p in db_handler.get_collection_dict(PICKUPS_COLLECTION):
+            if self.did in p.products:
+                p.products.remove(self.did)
+                p.update_to_db()
+            
+        return super().delete_document()
+
 class Pickup(BaseDB):
     name: str
     address: str
     date: datetime
-    products: List[str]
+    products: Set[str]
 
     @staticmethod
     def COLLECTION_NAME():
@@ -124,6 +136,14 @@ class Order(BaseDB):
         product.update_to_db(db_handler)
 
         return 0
+
+    def delete_from_db(self, db_handler):
+        for pid, c in self.ordered_products:
+            prod = Product.read_from_db(pid)
+            prod.reserved -= c
+            prod.update_to_db()
+            
+        return super().delete_document()
 
     @staticmethod
     def COLLECTION_NAME():
