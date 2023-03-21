@@ -107,8 +107,9 @@ def add_product_to_order(pid: str = Body(...),
 # DATA DELETORS
 
 @app.post("/delete_product")
-def delete_product(Product: Product):
-    return Product.delete_from_db(firestore_db)
+def delete_product(pid: str = Body(..., embed=True)):
+    product = Product.read_from_db(firestore_db, pid)
+    return product.delete_from_db(firestore_db)
 
 @app.post("/delete_pickup")
 def delete_product(Pickup: Pickup):
