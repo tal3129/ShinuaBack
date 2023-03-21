@@ -21,10 +21,12 @@ class db_handler():
 
     def get_collection_dict(self, collection):
         cols = self.get_collection(collection).stream()
-        all_items = {}
+        all_items = []
         for col in cols:
-            all_items[col.id] = col.to_dict()
-        return all_items
+            item = {"did": col.id}
+            item.update(col.to_dict())
+            all_items.append(item)
+        return {f"{collection}": all_items}
 
     def get_document(self, collection, document_id):
         return self.get_collection(collection).document(document_id).get().to_dict()
