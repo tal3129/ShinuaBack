@@ -36,13 +36,13 @@ STORAGE = 1
 
 @dataclass
 class BaseDB():
-    did: str = ""
+    did: str
 
     COLLECTION_NAME = ""
 
     @classmethod
     def read_from_db(cls, db_handler, did):
-        return cls(**db_handler.get_document(cls.COLLECTION_NAME, did))
+        return cls(did=did, **(db_handler.get_document(cls.COLLECTION_NAME, did)))
 
     def _to_dict(self):
         values_dict = asdict(self)
@@ -50,15 +50,15 @@ class BaseDB():
         return values_dict
 
     def add_to_db(self, db_handler):
-        return self.db_handler.add_document(self.COLLECTION_NAME, self._to_dict())
+        return db_handler.add_document(self.COLLECTION_NAME, self._to_dict())
 
     def update_to_db(self, db_handler):
-        return self.db_handler.set_document(self.COLLECTION_NAME, self.did, self._to_dict())
+        return db_handler.set_document(self.COLLECTION_NAME, self.did, self._to_dict())
 
     def delete_from_db(self, db_handler):
-        return self.db_handler.delete_document(self.COLLECTION_NAME, self.did)
+        return db_handler.delete_document(self.COLLECTION_NAME, self.did)
 
-
+@dataclass
 class Product(BaseDB):
     name: str
     description: str
@@ -69,6 +69,7 @@ class Product(BaseDB):
 
     COLLECTION_NAME = PRODUCT_COLLECTION
 
+@dataclass
 class Pickup(BaseDB):
     name: str
     address: str
@@ -77,7 +78,7 @@ class Pickup(BaseDB):
 
     COLLECTION_NAME = PICKUPS_COLLECTION
 
-
+@dataclass
 class Order(BaseDB):
     name: str
     address: str

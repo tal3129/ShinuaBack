@@ -27,24 +27,21 @@ class db_handler():
         return all_items
 
     def get_document(self, collection, document_id):
-        did = document_id if isinstance(document_id, str) else str(document_id)
-        return self.get_collection(collection).document(did).get().to_dict()
+        return self.get_collection(collection).document(document_id).get().to_dict()
 
     def add_document(self, collection, values_dict):
         return self.get_collection(collection).add(values_dict)
 
     def set_document(self, collection, document_id, values_dict):
-        did = document_id if isinstance(document_id, str) else str(document_id)
         # Make sure document exists
-        if self.get_collection(collection).document(did).get().exists:
-            return self.get_collection(collection).document(did).set(values_dict, merge=False)
+        if self.get_collection(collection).document(document_id).get().exists:
+            return self.get_collection(collection).document(document_id).set(values_dict, merge=False)
         else:
             # TODO: return not set
             pass
 
     def delete_document(self, collection, document_id):
-        did = document_id if isinstance(document_id, str) else str(document_id)
-        return self.get_collection(collection).document(did).delete()
+        return self.get_collection(collection).document(document_id).delete()
 
 def get_all_products(db_handler):
     return db_handler.get_collection_dict(PRODUCT_COLLECTION)
