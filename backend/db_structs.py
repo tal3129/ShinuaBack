@@ -31,13 +31,13 @@ from pydantic.dataclasses import dataclass
 
 
 class ProductStatus(Enum):
-	COLLECTION = 0
-	STORAGE = 1
+    COLLECTION = 0
+    STORAGE = 1
 
 
 @dataclass
 class Product:
-	pid: int
+    pid: int
     name: str
     description: str
     image_url_list: List[str]
@@ -46,37 +46,37 @@ class Product:
     reserved: int
 
     def read_from_db():
-    	pass
+        pass
 
     def update_to_db():
-    	pass
+        pass
 
 
 @dataclass
 class Pickup:
-	piid: int
+    pid: int
     name: str
     address: str
-	date: datetime
-	products: List[int]
+    date: datetime
+    products: List[int]
 
     def read_from_db():
-    	pass
+        pass
 
     def update_to_db():
-    	pass 
+        pass 
 
 
 @dataclass
 class Order:
-	oid: int
+    oid: int
     name: str
     address: str
-	date: datetime
-	ordered_products: List[Tuple(int, int)]
+    date: datetime
+    ordered_products: List[Tuple(int, int)]
 
     def read_from_db():
-    	pass
+        pass
 
     def update_to_db():
-    	pass 
+        pass 
