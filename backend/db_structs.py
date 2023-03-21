@@ -80,6 +80,14 @@ class Product(BaseDB):
     @staticmethod
     def COLLECTION_NAME():
         return PRODUCT_COLLECTION
+    
+    @staticmethod
+    def is_exists(db_handler, pid):
+        pids = db_handler.get_collection(PRODUCT_COLLECTION).stream()
+        for p in pids:
+            if p.id == pid:
+                return True
+        return False
 
     def delete_from_db(self, db_handler):
         for o in db_handler.get_collection_dict(ORDERS_COLLECTION):
@@ -121,32 +129,21 @@ class Order(BaseDB):
         self.update_to_db(db_handler)
         return 0 
 
-    def edit_product_amount_in_order(self, db_handler, pid, amount):
-        if pid not in self.ordered_products:
-            return "Product doesnt exist in this order"
+    def add_product(self, db_handler, pid, amount):
+        if not Product.is_exists(db_handler, pid):
+            return "Product doesnt exist!"
+        
+        prev_amount = 0
+        if pid in self.ordered_products:
+            prev_amount = self.ordered_products[pid]
         product = Product.read_from_db(db_handler, pid)
 
-        prev_amount = self.ordered_products[pid]
         if product.amount - product.reserved + prev_amount < amount:
             return f"amount is too big, product have {product.amount} amount but {product.reserved} are reserved (while {prev_amount} reserved to this order)"
-        
         self.ordered_products[pid] = amount
         self.update_to_db(db_handler)
+
         product.reserved = product.reserved - prev_amount + amount
-        product.update_to_db(db_handler)
-
-        return 0
-
-    def add_product(self, db_handler, pid, amount):
-        if pid in self.ordered_products:
-            return "Product already in order, consider editing the amount"
-        product = Product.read_from_db(db_handler, pid)
-        if product.amount - product.reserved < amount:
-            return f"amount is too big, product have {product.amount} amount but {product.reserved} are reserved"
-        self.ordered_products[pid] = amount
-        self.update_to_db(db_handler)
-
-        product.reserved += amount
         product.update_to_db(db_handler)
 
         return 0

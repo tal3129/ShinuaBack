@@ -70,13 +70,6 @@ def edit_order(Order: Order):
 def edit_pickup(Pickup: Pickup):
     return Pickup.update_to_db(firestore_db)
 
-@app.post("/edit_product_amount_in_order")
-def edit_product_amount_in_order(pid:str = Body(...),
-                                 oid:str = Body(...), 
-                                 amount: int = Body(...)):
-    order = Order.read_from_db(firestore_db, oid)
-    return order.edit_product_amount_in_order(firestore_db, pid, amount)
-
 # DATA ADDERS
 
 @app.post("/add_product")
