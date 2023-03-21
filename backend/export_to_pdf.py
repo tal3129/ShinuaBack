@@ -7,7 +7,6 @@ env = Environment(
 )
 
 WKHTMLTOPDF_BIN_PATH = r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe'
-#RECEIPT_TEMPLATE_PATH = "./receipt/receipt_src.jinja"
 config = pdfkit.configuration(wkhtmltopdf=WKHTMLTOPDF_BIN_PATH)
 
 def export_to_pdf(order: dict):
