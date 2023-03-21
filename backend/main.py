@@ -110,3 +110,9 @@ def delete_product(Pickup: Pickup):
 @app.post("/delete_order")
 def delete_product(Order: Order):
     return Order.delete_from_db(firestore_db)
+
+# STATUS CHANGERS
+@app.post("/move_product_to_inventory")
+def move_product_to_inventory(pid: str = Body(..., embed=True)):
+    product = Product.read_from_db(firestore_db, pid)
+    return product.move_to_inventory(firestore_db)
