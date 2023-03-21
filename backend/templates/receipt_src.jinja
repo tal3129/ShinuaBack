@@ -3,14 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
-    <link rel="stylesheet" type="text/css" href="receipt.css">
+    <style>
+      {% include 'receipt.css' %}
+    </style>
 </head>
 <body>
       <div class="receipt">
 
       <h2 class="name"> שינוע חברתי </h2>
 
-      <p class="greeting"> שמחנו לקבל את פניתך! להלן התוצאות </p>
+      <p class="greeting"> שמחנו לקבל את פנייתך! להלן התוצאות </p>
 
       <!-- Order info -->
       <div class="order">
@@ -28,23 +30,24 @@
       <div class="details">
 
         <h3> מוצרים </h3>
-
+        {% for product in ordered_products %}
         <div class="product">
 
-            <h4> {{ products[0].name }} </h4>
-            <img src="{{ products[0].image_url_list[0] }}">
-            <img src="{{ products[0].image_url_list[1] }}">
+            <h4> {{ product.name }} </h4>
+            {% for image_url in product.image_url_list %}
+            <img src="{{ image_url }}">
+            {% endfor %}
 
 
           <div class="info">
 
-            <p> תיאור : {{ products[0].description }} </p>
-            <p> כמות : {{ products[0].amount }} </p>
+            <p> תיאור : {{ product.description }} </p>
+            <p> כמות : {{ product.amount }} </p>
 
           </div>
 
         </div>
-
+        {% endfor %}
       </div>
 
     </div>
