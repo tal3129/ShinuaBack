@@ -89,6 +89,20 @@ class Order(BaseDB):
     date: datetime
     ordered_products: List[Tuple[int, int]]
 
+    def add_product(self, db_handler, pid, amount):
+        products_in_order = [i[0] for i in self.ordered_products]
+        if pid in products_in_order:
+            return "pid already in order, consider editing the amount"
+        product = Product.read_from_db(db_handler, pid)
+        if product.amount - product.reserved < amount:
+            return f"amount is too big, product have {product.amount} amount but {product.reserved} are reserved"
+        self.ordered_products += (pid, amount)
+        self.update_to_db(db_handler)
+
+        product.reserved += amount
+        product.update_to_db(db_handler)
+
+        return 0
 
     @staticmethod
     def COLLECTION_NAME():

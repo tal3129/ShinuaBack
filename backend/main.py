@@ -83,6 +83,7 @@ def add_pickup(Pickup: Pickup):
 def add_order(Order: Order):
     return Order.add_to_db(firestore_db)
 
-# @app.post("/add_product_to_order")
-# def add_product_to_order(pid: str, oid: str):
-    
+@app.post("/add_product_to_order")
+def add_product_to_order(pid: str, oid: str, amount: int):
+    order = Order.read_from_db(oid)
+    return order.add_product(db_handler, pid, amount)
