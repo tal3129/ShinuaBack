@@ -45,11 +45,24 @@ def get_products():
 
 @app.get("/get_orders")
 def get_orders():
-    return get_all_orders(firestore_db)
+    orders = get_all_orders(firestore_db)['Orders']
+    for o in orders:
+        keys = o["ordered_products"].keys()
+        res = []
+        for pid in keys:
+            res.append(Product.read_from_db(firestore_db, pid).dict())
+        o["ordered_products"] = res 
+    return orders
 
 @app.get("/get_pickups")
 def get_pickups():
-    return get_all_pickups(firestore_db)
+    pickups = get_all_pickups(firestore_db)['Pickups']
+    for p in pickups:
+        res = []
+        for pid in p["products"]:
+            res.append(Product.read_from_db(firestore_db, pid).dict())
+        p["products"] = res
+    return pickups
 
 @app.get("/get_product/{pid}")
 def get_product_by_id(pid: str):
