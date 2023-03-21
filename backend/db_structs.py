@@ -27,8 +27,8 @@ from pydantic import BaseModel
 
 # Collection names
 PRODUCT_COLLECTION = "Products"
-PICKUPS_COLLECTION = "Orders"
-ORDERS_COLLECTION = "Pickups"
+PICKUPS_COLLECTION = "Pickups"
+ORDERS_COLLECTION = "Orders"
 
 # ProductStatus
 COLLECTION = 0
@@ -88,6 +88,7 @@ class Order(BaseDB):
     address: str
     date: datetime
     ordered_products: List[Tuple[int, int]]
+
 
     @staticmethod
     def COLLECTION_NAME():

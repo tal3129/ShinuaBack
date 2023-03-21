@@ -31,13 +31,7 @@ def get_info():
     </head>
     <body>
         <h1>Available Routes:</h1>
-        <h3>/get_catalog</h3>
-        <h3>/get_orders</h3>
-        <h3>/get_pickups</h3>
-        <h3>/get_product/{pid}</h3>
-        <h3>/edit_product</h3>
-        <h3>/edit_order</h3>
-        <h3>/edit_pickup</h3>
+        <h3>go to /docs for nice nice nice</h3>
     </body>
 </html>
         """
@@ -74,3 +68,21 @@ def edit_order(Order: Order):
 @app.post("/edit_pickup")
 def edit_pickup(Pickup: Pickup):
     return Pickup.update_to_db(firestore_db)
+
+# DATA ADDERS - TODO - add Product to order
+
+@app.post("/add_product")
+def add_product(Product: Product):
+    return Product.add_to_db(firestore_db)
+
+@app.post("/add_pickup")
+def add_pickup(Pickup: Pickup):
+    return Pickup.add_to_db(firestore_db)
+
+@app.post("/add_order")
+def add_order(Order: Order):
+    return Order.add_to_db(firestore_db)
+
+# @app.post("/add_product_to_order")
+# def add_product_to_order(pid: str, oid: str):
+    
