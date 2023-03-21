@@ -83,13 +83,6 @@ def edit_order(Order: Order):
 def edit_pickup(Pickup: Pickup):
     return Pickup.update_to_db(firestore_db)
 
-@app.post("/edit_product_amount_in_order")
-def edit_product_amount_in_order(pid:str = Body(...),
-                                 oid:str = Body(...), 
-                                 amount: int = Body(...)):
-    order = Order.read_from_db(firestore_db, oid)
-    return order.edit_product_amount_in_order(firestore_db, pid, amount)
-
 # DATA ADDERS
 
 @app.post("/add_product")
@@ -114,8 +107,9 @@ def add_product_to_order(pid: str = Body(...),
 # DATA DELETORS
 
 @app.post("/delete_product")
-def delete_product(Product: Product):
-    return Product.delete_from_db(firestore_db)
+def delete_product(pid: str = Body(..., embed=True)):
+    product = Product.read_from_db(firestore_db, pid)
+    return product.delete_from_db(firestore_db)
 
 @app.post("/delete_pickup")
 def delete_product(Pickup: Pickup):
