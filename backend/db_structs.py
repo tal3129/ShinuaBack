@@ -69,6 +69,11 @@ class Product(BaseDB):
     reserved: int
     origin: str
 
+    def move_to_inventory(self, db_handler):
+        self.status = STORAGE
+        self.update_to_db(db_handler)
+        return 0 
+
     @staticmethod
     def COLLECTION_NAME():
         return PRODUCT_COLLECTION
