@@ -51,3 +51,9 @@ class Product:
     amount: int
     origin: str
 
+@dataclass
+class Pickup():
+    name: str
+    address: str
+    date: datetime
+    products: List[int]
