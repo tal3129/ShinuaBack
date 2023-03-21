@@ -24,6 +24,10 @@ def get_orders():
 def get_pickups():
     return firestore_db.get_collection(PICKUPS_COLLECTION)
 
+@app.get("/get_product")
+def get_product_by_id(pid):
+    return Product.read_from_db(pid)
+
 
 # DATA EDITORS
 
