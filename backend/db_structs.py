@@ -22,7 +22,7 @@ Order:
 - OrderedProducts: List[(ID,Amount)]
 """
 from datetime import datetime
-from typing import List, Dict
+from typing import List, Dict, Set
 from pydantic import BaseModel
 
 # Collection names

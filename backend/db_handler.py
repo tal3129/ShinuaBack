@@ -50,7 +50,7 @@ class db_handler():
         return self.get_collection(collection).document(document_id).delete()
 
     def upload_an_image(self, remote_file_path, local_image_path):
-        blob = bucket.blob(remote_file_path)
+        blob = דself.bucket.blob(remote_file_path)
         blob.upload_from_filename(local_image_path)
 
 
