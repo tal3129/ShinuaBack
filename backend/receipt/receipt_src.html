@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" type="text/css" href="receipt.css">
+</head>
+<body>
+      <div class="receipt">
+
+      <h2 class="name"> שינוע חברתי </h2>
+
+      <p class="greeting"> שמחנו לקבל את פניתך! להלן התוצאות </p>
+
+      <!-- Order info -->
+      <div class="order">
+
+        <p> מספר הזמנה : 6 </p>
+        <p> שם הזמנה : {{ name }} </p>
+        <p> תאריך הזמנה : {{ date }} </p>
+        <p> כתובת הזמנה : {{ address }} </p>
+
+      </div>
+
+      <hr>
+
+      <!-- Details -->
+      <div class="details">
+
+        <h3> מוצרים </h3>
+
+        <div class="product">
+
+            <h4> {{ products[0].name }} </h4>
+            <img src="{{ products[0].image_url_list[0] }}">
+            <img src="{{ products[0].image_url_list[1] }}">
+
+
+          <div class="info">
+
+            <p> תיאור : {{ products[0].description }} </p>
+            <p> כמות : {{ products[0].amount }} </p>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+</body>
+</html>
