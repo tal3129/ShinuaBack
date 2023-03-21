@@ -7,9 +7,9 @@ from fastapi import FastAPI, Body, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from typing import List
-from db_structs import Product, Order, Pickup
-from db_handler import db_handler, get_all_products, get_all_orders, get_all_pickups
 from export_to_pdf import prepare_order_for_export, export_to_pdf
+from backend.db_structs import Product, Order, Pickup
+from backend.db_handler import db_handler, get_all_products, get_all_orders, get_all_pickups
 
 app = FastAPI()
 firestore_db = db_handler()
