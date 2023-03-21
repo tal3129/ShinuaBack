@@ -45,16 +45,16 @@ class BaseDB(BaseModel):
     def read_from_db(cls, db_handler, did):
         return cls(did=did, **(db_handler.get_document(cls.COLLECTION_NAME(), did)))
 
-    def _to_dict(self):
-        values_dict = asdict(self)
+    def _values_dict(self):
+        values_dict = self.dict()
         values_dict.pop('did')
         return values_dict
 
     def add_to_db(self, db_handler):
-        return db_handler.add_document(self.COLLECTION_NAME(), self._to_dict())
+        return db_handler.add_document(self.COLLECTION_NAME(), self._values_dict())
 
     def update_to_db(self, db_handler):
-        return db_handler.set_document(self.COLLECTION_NAME(), self.did, self._to_dict())
+        return db_handler.set_document(self.COLLECTION_NAME(), self.did, self._values_dict())
 
     def delete_from_db(self, db_handler):
         return db_handler.delete_document(self.COLLECTION_NAME(), self.did)
