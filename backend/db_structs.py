@@ -67,6 +67,7 @@ class Product(BaseDB):
     status: int
     amount: int
     reserved: int
+    origin: str
 
     @staticmethod
     def COLLECTION_NAME():
