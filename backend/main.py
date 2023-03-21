@@ -48,8 +48,10 @@ def get_orders():
     orders = get_all_orders(firestore_db)['Orders']
     for o in orders:
         keys = o["ordered_products"].keys()
+        res = []
         for pid in keys:
-            o["ordered_products"][pid] = Product.read_from_db(firestore_db, pid).dict()
+            res.append(Product.read_from_db(firestore_db, pid).dict())
+        o["ordered_products"] = res 
     return orders
 
 @app.get("/get_pickups")
