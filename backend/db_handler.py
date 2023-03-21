@@ -2,7 +2,7 @@ import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import firestore
 
-ADMIN_CREDENTIALS = r"C:\Users\tom\Downloads\tom-test-6cfe5-firebase-adminsdk-i9cbg-1c1fe7120c.json"
+ADMIN_CREDENTIALS = r"shinua_private_key.json"
 PRODUCT_COLLECTION = "products"
 PICKUPS_COLLECTION = "orders"
 ORDERS_COLLECTION = "pickups"
