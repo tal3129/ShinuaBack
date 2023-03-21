@@ -3,10 +3,11 @@ This file handles all the routes (relevant to backend)
 Should only route requests from frontend and communicate with backend logic to return PYDANTIC objects
 """
 
-from fastapi import FastAPI, Body
+from fastapi import FastAPI, Body, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from typing import List
+from export_to_pdf import prepare_order_for_export, export_to_pdf
 from backend.db_structs import Product, Order, Pickup
 from backend.db_handler import db_handler, get_all_products, get_all_orders, get_all_pickups
 
@@ -68,6 +69,19 @@ def get_pickups():
 def get_product_by_id(pid: str):
     return Product.read_from_db(firestore_db, pid)
 
+@app.get(
+    "/orders/{oid}/export_pdf",
+    responses={200: {'content': {'application/pdf': {}}}},
+    response_class=Response
+)
+def export_pdf_by_id(oid: str):
+    try:
+        order = Order.read_from_db(firestore_db, oid)
+        order_dict = prepare_order_for_export(order, firestore_db)
+    except Exception:
+        raise HTTPException(status_code=404, detail='Object not found')
+    print(order_dict)
+    return Response(content=export_to_pdf(order_dict), media_type='application/pdf')
 
 # DATA EDITORS
 

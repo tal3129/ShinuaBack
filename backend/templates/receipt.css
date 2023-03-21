@@ -1,0 +1,107 @@
+/* Our Font */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;700&display=swap');
+
+/* Global */
+* {
+  margin: 10;
+  padding: 10;
+  box-sizing: border-box;
+  font-family: 'Poppins'
+}
+
+body {
+  height: 100vh;
+  background-color: #A3E1E1
+}
+
+/* The Receipt */
+.receipt {
+  width: 400px;
+  height: 720px;
+  background-color: white;
+  border-radius: 30px;
+  position: relative;
+  left: 50%;
+  margin-left: -180px;
+  box-shadow: 14px 14px 22px -18px;
+  padding: 20px;
+  direction: rtl
+}
+
+/* Heading */
+.name {
+  text-transform: uppercase;
+  text-align: center;
+  color: #6c8b8e;
+  letter-spacing: 10px;
+  font-size: 1.8em;
+  margin-top: 10px
+}
+
+/* Big thank */
+.greeting {
+  font-size: 21px;
+  text-transform: capitalize;
+  text-align: center;
+  color: #6f8d90;
+  margin: 35px 0;
+  letter-spacing: 1.2px
+}
+
+/* Order info */
+.order p {
+  font-size: 13px;
+  color: #aaa;
+  padding-left: 10px;
+  letter-spacing: .7px
+}
+
+
+/* Order details */
+.details {
+  padding-left: 10px;
+  margin-bottom: 35px;
+  overflow: hidden
+}
+
+.details h3 {
+  font-weight: 400;
+  color: #6c8b8e;
+  font-size: 1.5em;
+  margin-bottom: 15px
+}
+
+/* Image and the info of the order */
+.product {
+  float: left;
+  width: 83%
+}
+
+.product img {
+  width: 65px;
+  float: left
+}
+
+.product .info {
+  float: right;
+  margin-left: 15px
+}
+
+.product .info h4 {
+  color: #6f8d90;
+  font-weight: 400;
+  text-transform: uppercase;
+  margin-top: 10px
+}
+
+.product .info p {
+  font-size: 12px;
+  color: #aaa;
+}
+
+/* Net price */
+.details > p {
+  color: #6f8d90;
+  margin-top: 25px;
+  font-size: 15px
+}
