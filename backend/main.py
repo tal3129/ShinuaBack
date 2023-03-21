@@ -5,7 +5,7 @@ Should only route requests from frontend and communicate with backend logic to r
 
 from fastapi import FastAPI
 from db_structs import Product, Order, Pickup, PRODUCT_COLLECTION, PICKUPS_COLLECTION, ORDERS_COLLECTION
-from db_handler import db_handler
+from db_handler import db_handler, get_all_products, get_all_orders, get_all_pickups
 
 app = FastAPI()
 firestore_db = db_handler()
@@ -14,19 +14,19 @@ firestore_db = db_handler()
 
 @app.get("/get_catalog")
 def get_products():
-    return firestore_db.get_collection(PRODUCT_COLLECTION)
+    return get_all_products(firestore_db)
 
 @app.get("/get_orders")
 def get_orders():
-    return firestore_db.get_collection(ORDERS_COLLECTION)
+    return get_all_orders(firestore_db)
 
 @app.get("/get_pickups")
 def get_pickups():
-    return firestore_db.get_collection(PICKUPS_COLLECTION)
+    return get_all_pickups(firestore_db)
 
 @app.get("/get_product/{pid}")
-def get_product_by_id(pid: int):
-    return Product.read_from_db(pid)
+def get_product_by_id(pid: str):
+    return Product.read_from_db(firestore_db, pid)
 
 
 # DATA EDITORS
