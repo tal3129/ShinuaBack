@@ -6,6 +6,7 @@ Should only route requests from frontend and communicate with backend logic to r
 from fastapi import FastAPI, Body
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
+from typing import List
 from db_structs import Product, Order, Pickup
 from db_handler import db_handler, get_all_products, get_all_orders, get_all_pickups
 
@@ -121,3 +122,21 @@ def delete_product(Pickup: Pickup):
 @app.post("/delete_order")
 def delete_product(Order: Order):
     return Order.delete_from_db(firestore_db)
+
+# STATUS CHANGERS
+@app.post("/move_product_to_inventory")
+def move_product_to_inventory(pid: str = Body(..., embed=True)):
+    product = Product.read_from_db(firestore_db, pid)
+    return product.move_to_inventory(firestore_db)
+
+@app.post("/move_products_to_inventory")
+def move_products_to_inventory(pids: List[str] = Body(..., embed=True)):
+    for pid in pids:
+        product = Product.read_from_db(firestore_db, pid)
+        product.move_to_inventory(firestore_db)
+    return "Moved"
+
+@app.post("/mark_order_as_done")
+def nark_order_as_done(oid: str = Body(..., embed=True)):
+    order = Order.read_from_db(firestore_db, oid)
+    return order.move_to_inventory(firestore_db)

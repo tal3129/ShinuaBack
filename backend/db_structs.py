@@ -34,6 +34,9 @@ ORDERS_COLLECTION = "Orders"
 COLLECTION = 0
 STORAGE = 1
 
+# OrderStatus
+ORDER_IN_PROGRESS = 0
+ORDER_DONE = 1
 
 class BaseDB(BaseModel):
     did: str
@@ -69,6 +72,11 @@ class Product(BaseDB):
     reserved: int
     origin: str
 
+    def move_to_inventory(self, db_handler):
+        self.status = STORAGE
+        self.update_to_db(db_handler)
+        return 0 
+
     @staticmethod
     def COLLECTION_NAME():
         return PRODUCT_COLLECTION
@@ -101,6 +109,17 @@ class Order(BaseDB):
     description: str
     date: datetime
     ordered_products: Dict[str, int]
+    status: int
+
+    def mark_as_done(self, db_handler):
+        for pid, c in self.ordered_products:
+            prod = Product.read_from_db(pid)
+            prod.reserved -= c
+            prod.amount -= c
+            prod.update_to_db()
+        self.status = ORDER_DONE
+        self.update_to_db(db_handler)
+        return 0 
 
     def edit_product_amount_in_order(self, db_handler, pid, amount):
         if pid not in self.ordered_products:
