@@ -3,7 +3,7 @@ This file handles all the routes (relevant to backend)
 Should only route requests from frontend and communicate with backend logic to return PYDANTIC objects
 """
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Body
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from db_structs import Product, Order, Pickup
@@ -70,9 +70,11 @@ def edit_pickup(Pickup: Pickup):
     return Pickup.update_to_db(firestore_db)
 
 @app.post("/edit_product_amount_in_order")
-def edit_product_amount_in_order(pid:str, oid:str, amount: int):
+def edit_product_amount_in_order(pid:str = Body(...),
+                                 oid:str = Body(...), 
+                                 amount: int = Body(...)):
     order = Order.read_from_db(firestore_db, oid)
-    return Order.edit_product_amount_in_order(firestore_db, pid, amount)
+    return order.edit_product_amount_in_order(firestore_db, pid, amount)
 
 # DATA ADDERS
 
@@ -89,7 +91,9 @@ def add_order(Order: Order):
     return Order.add_to_db(firestore_db)
 
 @app.post("/add_product_to_order")
-def add_product_to_order(pid: str, oid: str, amount: int):
+def add_product_to_order(pid: str = Body(...), 
+                         oid: str = Body(...), 
+                         amount: int = Body(...)):
     order = Order.read_from_db(firestore_db, oid)
     return order.add_product(firestore_db, pid, amount)
 
