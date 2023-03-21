@@ -52,6 +52,14 @@ class db_handler():
     def upload_an_image(self, remote_file_path, local_image_path):
         blob = self.bucket.blob(remote_file_path)
         blob.upload_from_filename(local_image_path)
+        blob.make_public()
+        return blob.public_url
+
+    def get_all_pickups(db_handler):
+    return db_handler.get_collection_dict(PICKUPS_COLLECTION)
+
+    def get_number_of_pickups_by_date(db_handler, amount_of_pickups):
+        return db_handler.get_collection_by_date_limit_dict(PICKUPS_COLLECTION, amount_of_pickups)
 
 
 def get_all_products(db_handler):
