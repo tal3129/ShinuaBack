@@ -24,9 +24,12 @@ class db_handler():
         did = document_id if isinstance(document_id, str) else str(document_id)
         return self.get_collection(collection).document(did).get().to_dict()
 
+    def add_document(self, collection, values_dict):
+        return self.get_collection(collection).add(values_dict)
+
     def set_document(self, collection, document_id, values_dict):
         did = document_id if isinstance(document_id, str) else str(document_id)
-        self.get_collection(collection).document(did).set(values_dict, merge=False)
+        return self.get_collection(collection).document(did).set(values_dict, merge=False)
 
 def get_all_products():
     return firestore_db.get_collection(PRODUCT_COLLECTION)

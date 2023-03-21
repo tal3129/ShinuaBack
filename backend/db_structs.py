@@ -41,7 +41,7 @@ STORAGE = 1
 
 @dataclass
 class BaseDB:
-    did: int
+    did: str = ""
 
     COLLECTION_NAME = ""
 
@@ -49,10 +49,16 @@ class BaseDB:
     def read_from_db(cls, db_handler, did):
         return cls(**db_handler.get_document(cls.COLLECTION_NAME, did))
 
-    def update_to_db(self, db_handler):
+    def _to_dict(self):
         values_dict = asdict(self)
         values_dict.pop('did')
-        self.db_handler.set_document(self.COLLECTION_NAME, self.did, values_dict)
+        return values_dict
+
+    def add_to_db(self, db_handler):
+        return self.db_handler.add_document(self.COLLECTION_NAME, self._to_dict())
+
+    def update_to_db(self, db_handler):
+        return self.db_handler.set_document(self.COLLECTION_NAME, self.did, self._to_dict())
 
 
 
