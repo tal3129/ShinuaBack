@@ -28,9 +28,10 @@ class db_handler():
         return self.get_collection(collection).document(document_id).get().to_dict()
 
     def add_document(self, collection, values_dict):
-        if type((self.get_collection(collection).add(values_dict))[1]) is google.cloud.firestore_v1.document.DocumentReference:
-            return 0
-        return 1
+        res = self.get_collection(collection).add(values_dict)
+        if type(res[1]) is google.cloud.firestore_v1.document.DocumentReference:
+            return res[1].id
+        return "Failed to add"
 
     def set_document(self, collection, document_id, values_dict):
         # Make sure document exists
