@@ -1,7 +1,7 @@
 import google
 import firebase_admin
 from firebase_admin import credentials, firestore, storage
-from db_structs import PRODUCT_COLLECTION, PICKUPS_COLLECTION, ORDERS_COLLECTION
+from .db_structs import PRODUCT_COLLECTION, PICKUPS_COLLECTION, ORDERS_COLLECTION
 
 ADMIN_CREDENTIALS = r"shinua_private_key.json"
 

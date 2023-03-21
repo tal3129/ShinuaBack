@@ -7,8 +7,8 @@ from fastapi import FastAPI, Body
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from typing import List
-from db_structs import Product, Order, Pickup
-from db_handler import db_handler, get_all_products, get_all_orders, get_all_pickups
+from .db_structs import Product, Order, Pickup
+from .db_handler import db_handler, get_all_products, get_all_orders, get_all_pickups
 
 app = FastAPI()
 firestore_db = db_handler()
