@@ -29,10 +29,12 @@ def get_pickups():
 
 @app.post("/add_product")
 def add_product(Product: Product):
+    # We need upload image option with add
     return "WORKED OR NOT BEACH"
 
 @app.post("/edit_product")
 def edit_product(Product: Product):
+    # We need upload image option with edit
     return "WORKED OR NOT BEACH"
 
 @app.post("/add_order")
