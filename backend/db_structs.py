@@ -44,7 +44,10 @@ class BaseDB(BaseModel):
     
     @classmethod
     def read_from_db(cls, db_handler, did):
-        return cls(did=did, **(db_handler.get_document(cls.COLLECTION_NAME(), did)))
+        doc = db_handler.get_document(cls.COLLECTION_NAME(), did)
+        if doc is None:
+            raise Exception('No such document')
+        return cls(did=did, **doc)
 
     def _values_dict(self):
         values_dict = self.dict()
