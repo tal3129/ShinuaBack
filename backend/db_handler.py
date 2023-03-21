@@ -1,3 +1,4 @@
+import google
 import firebase_admin
 from firebase_admin import credentials, firestore
 
@@ -37,10 +38,15 @@ class db_handler():
     def set_document(self, collection, document_id, values_dict):
         # Make sure document exists
         if self.get_collection(collection).document(document_id).get().exists:
-            return self.get_collection(collection).document(document_id).set(values_dict, merge=False)
+            try:
+                if type(self.get_collection(collection).document(document_id).set(values_dict, merge=False)) is google.cloud.firestore_v1.types.write.WriteResult:
+                    return 0
+                return 1
+            except Exception as x:
+                return str(x)
+            
         else:
-            # TODO: return not set
-            pass
+            return "The object you were trying to edit doesnt exists!"
 
     def delete_document(self, collection, document_id):
         return self.get_collection(collection).document(document_id).delete()

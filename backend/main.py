@@ -29,19 +29,16 @@ def get_product_by_id(pid: str):
     return Product.read_from_db(firestore_db, pid)
 
 
-# DATA EDITORS - TODO, return success or error
+# DATA EDITORS
 
 @app.post("/edit_product")
 def edit_product(Product: Product):
-    Product.update_to_db(firestore_db)
-    return {}
+    return Product.update_to_db(firestore_db)
 
 @app.post("/edit_order")
 def edit_order(Order: Order):
-    Order.update_to_db(firestore_db)
-    return {}
+    return Order.update_to_db(firestore_db)
 
 @app.post("/edit_pickup")
 def edit_pickup(Pickup: Pickup):
-    Pickup.update_to_db(firestore_db)
-    return {}
+    return Pickup.update_to_db(firestore_db)
