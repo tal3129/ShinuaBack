@@ -4,42 +4,41 @@ Should only route requests from frontend and communicate with backend logic to r
 """
 
 from fastapi import FastAPI
-from db_structs import Product, Order, Pickup
-from db_handler import db_handler, PRODUCT_COLLECTION, PICKUPS_COLLECTION, ORDERS_COLLECTION
+from db_structs import Product, Order, Pickup, PRODUCT_COLLECTION, PICKUPS_COLLECTION, ORDERS_COLLECTION
+from db_handler import db_handler
 
 app = FastAPI()
 firestore_db = db_handler()
 
 # DATA RETRIEVERS
 
-@app.get("/catalog")
+@app.get("/get_catalog")
 def get_products():
     return firestore_db.get_collection(PRODUCT_COLLECTION)
 
-@app.get("/orders")
+@app.get("/get_orders")
 def get_orders():
     return firestore_db.get_collection(ORDERS_COLLECTION)
 
-@app.get("/pickups")
+@app.get("/get_pickups")
 def get_pickups():
     return firestore_db.get_collection(PICKUPS_COLLECTION)
 
-@app.get("/get_product")
-def get_product_by_id(pid):
+@app.get("/get_product/{pid}")
+def get_product_by_id(pid: int):
     return Product.read_from_db(pid)
 
 
 # DATA EDITORS
 
-@app.post("/set_product")
-def add_product(Product: Product):
-    # We need upload image option with add
-    return "WORKED OR NOT BEACH"
+@app.post("/edit_product")
+def edit_product(Product: Product):
+    return firestore_db.set_document(PRODUCT_COLLECTION, Product.did, Product)
 
-@app.post("/set_order")
-def add_order(Order: Order):
-    return "WORKED OR NOT BEACH"
+@app.post("/edit_order")
+def edit_order(Order: Order):
+    return firestore_db.set_document(ORDERS_COLLECTION, Order.did, Order)
 
-@app.post("/set_pickup")
-def add_pickup(Pickup: Pickup):
-    return "WORKED OR NOT BEACH"
+@app.post("/edit_pickup")
+def edit_pickup(Pickup: Pickup):
+    return firestore_db.set_document(PICKUPS_COLLECTION, Pickup.did, Pickup)
