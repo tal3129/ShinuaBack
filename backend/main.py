@@ -27,28 +27,15 @@ def get_pickups():
 
 # DATA EDITORS
 
-@app.post("/add_product")
+@app.post("/set_product")
 def add_product(Product: Product):
     # We need upload image option with add
     return "WORKED OR NOT BEACH"
 
-@app.post("/edit_product")
-def edit_product(Product: Product):
-    # We need upload image option with edit
-    return "WORKED OR NOT BEACH"
-
-@app.post("/add_order")
+@app.post("/set_order")
 def add_order(Order: Order):
     return "WORKED OR NOT BEACH"
 
-@app.post("/edit_order")
-def edit_order(Order: Order):
-    return "WORKED OR NOT BEACH"
-
-@app.post("/add_pickup")
+@app.post("/set_pickup")
 def add_pickup(Pickup: Pickup):
-    return "WORKED OR NOT BEACH"
-
-@app.post("/edit_pickup")
-def edit_pickup(Pickup: Pickup):
     return "WORKED OR NOT BEACH"
