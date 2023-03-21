@@ -4,11 +4,43 @@ Should only route requests from frontend and communicate with backend logic to r
 """
 
 from fastapi import FastAPI
-from db_structs import Product, Order, Pickup, PRODUCT_COLLECTION, PICKUPS_COLLECTION, ORDERS_COLLECTION
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse
+from db_structs import Product, Order, Pickup
 from db_handler import db_handler, get_all_products, get_all_orders, get_all_pickups
 
 app = FastAPI()
 firestore_db = db_handler()
+
+origins = ["*"]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# INFO
+
+@app.get("/", response_class=HTMLResponse)
+def get_info():
+    return """<html>
+    <head>
+        <title>sup g</title>
+    </head>
+    <body>
+        <h1>Available Routes:</h1>
+        <h3>/get_catalog</h3>
+        <h3>/get_orders</h3>
+        <h3>/get_pickups</h3>
+        <h3>/get_product/{pid}</h3>
+        <h3>/edit_product</h3>
+        <h3>/edit_order</h3>
+        <h3>/edit_pickup</h3>
+    </body>
+</html>
+        """
 
 # DATA RETRIEVERS
 

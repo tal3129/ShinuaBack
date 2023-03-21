@@ -1,14 +1,9 @@
 import google
 import firebase_admin
 from firebase_admin import credentials, firestore
+from db_structs import PRODUCT_COLLECTION, PICKUPS_COLLECTION, ORDERS_COLLECTION
 
 ADMIN_CREDENTIALS = r"shinua_private_key.json"
-
-# Collection names
-PRODUCT_COLLECTION = "Products"
-PICKUPS_COLLECTION = "Orders"
-ORDERS_COLLECTION = "Pickups"
-
 
 # TODO: consider do try and catch on all DB functions
 class db_handler():

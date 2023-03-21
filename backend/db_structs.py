@@ -22,12 +22,13 @@ Order:
 - OrderedProducts: List[(ID,Amount)]
 """
 from datetime import datetime
-from dataclasses import field, asdict
-from typing import List, Union, Tuple
-from fastapi import FastAPI
+from typing import List, Tuple
 from pydantic import BaseModel
-from db_handler import db_handler, PRODUCT_COLLECTION, PICKUPS_COLLECTION, ORDERS_COLLECTION
 
+# Collection names
+PRODUCT_COLLECTION = "Products"
+PICKUPS_COLLECTION = "Orders"
+ORDERS_COLLECTION = "Pickups"
 
 # ProductStatus
 COLLECTION = 0
