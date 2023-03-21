@@ -26,12 +26,7 @@ from dataclasses import field, asdict
 from typing import List, Union, Tuple
 from fastapi import FastAPI
 from pydantic.dataclasses import dataclass
-from db_handler import db_handler
-
-# Collection names
-PRODUCT_COLLECTION = "Products"
-PICKUPS_COLLECTION = "Orders"
-ORDERS_COLLECTION = "Pickups"
+from db_handler import db_handler, PRODUCT_COLLECTION, PICKUPS_COLLECTION, ORDERS_COLLECTION
 
 
 # ProductStatus
@@ -40,7 +35,7 @@ STORAGE = 1
 
 
 @dataclass
-class BaseDB:
+class BaseDB():
     did: str = ""
 
     COLLECTION_NAME = ""
@@ -60,6 +55,8 @@ class BaseDB:
     def update_to_db(self, db_handler):
         return self.db_handler.set_document(self.COLLECTION_NAME, self.did, self._to_dict())
 
+    def delete_from_db(self, db_handler):
+        return self.db_handler.delete_document(self.COLLECTION_NAME, self.did)
 
 
 class Product(BaseDB):
@@ -72,7 +69,6 @@ class Product(BaseDB):
 
     COLLECTION_NAME = PRODUCT_COLLECTION
 
-@dataclass
 class Pickup(BaseDB):
     name: str
     address: str
@@ -82,7 +78,6 @@ class Pickup(BaseDB):
     COLLECTION_NAME = PICKUPS_COLLECTION
 
 
-@dataclass
 class Order(BaseDB):
     name: str
     address: str

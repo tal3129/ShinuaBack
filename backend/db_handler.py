@@ -3,7 +3,13 @@ from firebase_admin import credentials, firestore
 
 ADMIN_CREDENTIALS = r"shinua_private_key.json"
 
+# Collection names
+PRODUCT_COLLECTION = "Products"
+PICKUPS_COLLECTION = "Orders"
+ORDERS_COLLECTION = "Pickups"
 
+
+# TODO: consider do try and catch on all DB functions
 class db_handler():
     def __init__(self):
         self._creds = credentials.Certificate(ADMIN_CREDENTIALS)
@@ -13,8 +19,8 @@ class db_handler():
     def get_collection(self, collection):
         return self.db.collection(collection)
 
-    def get_collection_dict(self):
-        self.get_collection().stream()
+    def get_collection_dict(self, collection):
+        cols = self.get_collection(collection).stream()
         all_items = {}
         for col in cols:
             all_items[col.id] = col.to_dict()
@@ -29,17 +35,22 @@ class db_handler():
 
     def set_document(self, collection, document_id, values_dict):
         did = document_id if isinstance(document_id, str) else str(document_id)
-        return self.get_collection(collection).document(did).set(values_dict, merge=False)
+        # Make sure document exists
+        if self.get_collection(collection).document(did).get().exists:
+            return self.get_collection(collection).document(did).set(values_dict, merge=False)
+        else:
+            # TODO: return not set
+            pass
 
-def get_all_products():
-    return firestore_db.get_collection(PRODUCT_COLLECTION)
+    def delete_document(self, collection, document_id):
+        did = document_id if isinstance(document_id, str) else str(document_id)
+        return self.get_collection(collection).document(did).delete()
 
-def get_all_pickups():
-    return firestore_db.get_collection(PICKUPS_COLLECTION)
+def get_all_products(db_handler):
+    return db_handler.get_collection_dict(PRODUCT_COLLECTION)
 
-def get_all_orders():
-    return firestore_db.get_collection(ORDERS_COLLECTION)
+def get_all_pickups(db_handler):
+    return db_handler.get_collection_dict(PICKUPS_COLLECTION)
 
-def get_product_by_id(pid):
-    pass
-
+def get_all_orders(db_handler):
+    return db_handler.get_collection_dict(ORDERS_COLLECTION)
