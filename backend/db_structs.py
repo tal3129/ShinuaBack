@@ -22,7 +22,7 @@ Order:
 - OrderedProducts: List[(ID,Amount)]
 """
 from datetime import datetime
-from typing import List, Tuple
+from typing import List, Dict
 from pydantic import BaseModel
 
 # Collection names
@@ -86,8 +86,9 @@ class Pickup(BaseDB):
 class Order(BaseDB):
     name: str
     address: str
+    description: str
     date: datetime
-    ordered_products: List[Tuple[int, int]]
+    ordered_products: Dict[str, int]
 
     def add_product(self, db_handler, pid, amount):
         products_in_order = [i[0] for i in self.ordered_products]

@@ -1,16 +1,16 @@
 import google
 import firebase_admin
-from firebase_admin import credentials, firestore
+from firebase_admin import credentials, firestore, storage
 from db_structs import PRODUCT_COLLECTION, PICKUPS_COLLECTION, ORDERS_COLLECTION
 
 ADMIN_CREDENTIALS = r"shinua_private_key.json"
 
-# TODO: consider do try and catch on all DB functions
 class db_handler():
     def __init__(self):
         self._creds = credentials.Certificate(ADMIN_CREDENTIALS)
-        firebase_admin.initialize_app(self._creds)
+        firebase_admin.initialize_app(self._creds, {'storageBucket': 'shinua-a57e9.appspot.com'})
         self.db = firestore.client()
+        self.bucket = storage.bucket()
     
     def get_collection(self, collection):
         return self.db.collection(collection)
@@ -47,6 +47,11 @@ class db_handler():
 
     def delete_document(self, collection, document_id):
         return self.get_collection(collection).document(document_id).delete()
+
+    def upload_an_image(self, remote_file_path, local_image_path):
+        blob = bucket.blob(remote_file_path)
+        blob.upload_from_filename(local_image_path)
+
 
 def get_all_products(db_handler):
     return db_handler.get_collection_dict(PRODUCT_COLLECTION)
