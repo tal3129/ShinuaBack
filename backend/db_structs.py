@@ -77,7 +77,7 @@ class Pickup(BaseDB):
     name: str
     address: str
     date: datetime
-    products: List[int]
+    products: List[str]
 
     @staticmethod
     def COLLECTION_NAME():
