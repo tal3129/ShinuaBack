@@ -116,3 +116,8 @@ def delete_product(Order: Order):
 def move_product_to_inventory(pid: str = Body(..., embed=True)):
     product = Product.read_from_db(firestore_db, pid)
     return product.move_to_inventory(firestore_db)
+
+@app.post("/mark_order_as_done")
+def nark_order_as_done(oid: str = Body(..., embed=True)):
+    order = Order.read_from_db(firestore_db, oid)
+    return order.move_to_inventory(firestore_db)
