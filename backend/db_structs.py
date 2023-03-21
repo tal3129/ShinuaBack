@@ -25,7 +25,7 @@ from datetime import datetime
 from dataclasses import field, asdict
 from typing import List, Union, Tuple
 from fastapi import FastAPI
-from pydantic.dataclasses import dataclass
+from pydantic import BaseModel
 from db_handler import db_handler, PRODUCT_COLLECTION, PICKUPS_COLLECTION, ORDERS_COLLECTION
 
 
@@ -34,15 +34,16 @@ COLLECTION = 0
 STORAGE = 1
 
 
-@dataclass
-class BaseDB():
+class BaseDB(BaseModel):
     did: str
 
-    COLLECTION_NAME = ""
-
+    @staticmethod
+    def COLLECTION_NAME():
+        return NotImplementedError()
+    
     @classmethod
     def read_from_db(cls, db_handler, did):
-        return cls(did=did, **(db_handler.get_document(cls.COLLECTION_NAME, did)))
+        return cls(did=did, **(db_handler.get_document(cls.COLLECTION_NAME(), did)))
 
     def _to_dict(self):
         values_dict = asdict(self)
@@ -50,15 +51,14 @@ class BaseDB():
         return values_dict
 
     def add_to_db(self, db_handler):
-        return db_handler.add_document(self.COLLECTION_NAME, self._to_dict())
+        return db_handler.add_document(self.COLLECTION_NAME(), self._to_dict())
 
     def update_to_db(self, db_handler):
-        return db_handler.set_document(self.COLLECTION_NAME, self.did, self._to_dict())
+        return db_handler.set_document(self.COLLECTION_NAME(), self.did, self._to_dict())
 
     def delete_from_db(self, db_handler):
-        return db_handler.delete_document(self.COLLECTION_NAME, self.did)
+        return db_handler.delete_document(self.COLLECTION_NAME(), self.did)
 
-@dataclass
 class Product(BaseDB):
     name: str
     description: str
@@ -67,22 +67,26 @@ class Product(BaseDB):
     amount: int
     reserved: int
 
-    COLLECTION_NAME = PRODUCT_COLLECTION
+    @staticmethod
+    def COLLECTION_NAME():
+        return PRODUCT_COLLECTION
 
-@dataclass
 class Pickup(BaseDB):
     name: str
     address: str
     date: datetime
     products: List[int]
 
-    COLLECTION_NAME = PICKUPS_COLLECTION
+    @staticmethod
+    def COLLECTION_NAME():
+        return PICKUPS_COLLECTION
 
-@dataclass
 class Order(BaseDB):
     name: str
     address: str
     date: datetime
     ordered_products: List[Tuple[int, int]]
 
-    COLLECTION_NAME = ORDERS_COLLECTION
+    @staticmethod
+    def COLLECTION_NAME():
+        return ORDERS_COLLECTION
