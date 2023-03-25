@@ -16,13 +16,11 @@ body {
 
 /* The Receipt */
 .receipt {
-  width: 400px;
-  height: 720px;
   background-color: white;
   border-radius: 30px;
   position: relative;
-  left: 50%;
-  margin-left: -180px;
+  margin-left: 100px;
+  margin-right: 100px;
   box-shadow: 14px 14px 22px -18px;
   padding: 20px;
   direction: rtl
