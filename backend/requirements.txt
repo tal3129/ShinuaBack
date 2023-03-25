@@ -1,3 +1,5 @@
 fastapi
 uvicorn
 firebase_admin
+pdfkit
+jinja2
