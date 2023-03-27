@@ -15,11 +15,26 @@ import os
 import datetime
 
 # Firebase credentials and app initialization
-CHOOSE_PICKUP_TYPE = 'Do you want to start a new pickup or continue an old one?'
-CHOOSE_PICKUP_TO_CONTINUE = 'Which pickup would you like to continue?'
-GET_COMPANY_NAME_FROM_USER = "What is the name of the company?"
-GET_ADDRESS_FROM_USER = 'What is the pickup address?'
-GET_NEW_ITEMS_FROM_USER = 'Great! Now you can start adding items to the pickup. What would you like to do?'
+CHOOSE_PICKUP_TYPE = 'תרצה להתחיל איסוף חדש או להמשיך איסוף קיים?'
+CHOOSE_PICKUP_TO_CONTINUE = 'איזה איסוף תרצה להמשיך?'
+GET_COMPANY_NAME_FROM_USER = "מה שם החברה ממנה אוספים?"
+GET_ADDRESS_FROM_USER = 'מה כתובת האיסוף?'
+GET_NEW_ITEMS_FROM_USER = 'נפלא! תוכל להתחיל להוסיף פריטים. מה תרצה לעשות?'
+REPLY_ADD_PHOTO = "הוסף תמונה של הפריט!"
+
+
+BUTTON_NEW_PICKUP = "איסוף חדש"
+BUTTON_CONTINUE_PICKUP = "המשך איסוף קודם"
+BUTTON_ADD_ITEM = "הוספת פריט"
+BUTTON_FINISH_PICKUP = "סגירת איסוף"
+
+
+#CHOOSE_PICKUP_TYPE = 'Do you want to start a new pickup or continue an old one?'
+#CHOOSE_PICKUP_TO_CONTINUE = 'Which pickup would you like to continue?'
+#GET_COMPANY_NAME_FROM_USER = "What is the name of the company?"
+#GET_ADDRESS_FROM_USER = 'What is the pickup address?'
+#GET_NEW_ITEMS_FROM_USER = 'Great! Now you can start adding items to the pickup. What would you like to do?'
+
 OLD_PICKUPS_AMOUNT_TO_GET = 3
 TELEGRAM_BOT_TOKEN = "6281123162:AAG1EPs8YZ_9bdaGxndN_w0kJmmwjTImmME"
 firestore_db = db_handler()
@@ -30,7 +45,7 @@ DEFAULT_PICKUP_DICT = {'name':'', 'address':'', 'date': datetime.datetime.now(),
 START_PICKUP, CONTINUE_PICKUP, ADD_COMPANY_NAME, ADD_ADDRESS, ADD_ITEMS, ADD_ITEM_PHOTO, ADD_ITEM_NAME, ADD_ITEM_AMOUNT, ADD_ITEM_INFO = range(9)
 
 async def start_pickup(update, context):
-    keyboard = [[KeyboardButton('New pickup'), KeyboardButton('Continue pickup')]]
+    keyboard = [[KeyboardButton(BUTTON_NEW_PICKUP), KeyboardButton(BUTTON_CONTINUE_PICKUP)]]
     reply_markup = ReplyKeyboardMarkup(keyboard, one_time_keyboard=True, input_field_placeholder=CHOOSE_PICKUP_TYPE)
     await update.message.reply_text(CHOOSE_PICKUP_TYPE, reply_markup=reply_markup)
     return START_PICKUP
@@ -77,7 +92,7 @@ async def add_company_name(update, context):
 async def add_address(update, context):
     context.user_data["pickup"].address = update.message.text
     context.user_data["products"] = []
-    keyboard = [[KeyboardButton('Add new item'), KeyboardButton('Finish adding items')]]
+    keyboard = [[KeyboardButton(BUTTON_ADD_ITEM), KeyboardButton(BUTTON_FINISH_PICKUP)]]
     reply_markup = ReplyKeyboardMarkup(keyboard, one_time_keyboard=True, input_field_placeholder=GET_NEW_ITEMS_FROM_USER)
     await update.message.reply_text(GET_NEW_ITEMS_FROM_USER, reply_markup=reply_markup)
     return ADD_ITEMS
@@ -86,15 +101,15 @@ async def add_items(update, context):
     query = update.callback_query
     if query:
         query.answer()
-    if update.message.text == 'Add new item':
+    if update.message.text == BUTTON_ADD_ITEM:
         context.user_data["products"].append(Product(did="0",**(DEFAULT_PRODUCT_DICT)))
         context.user_data["products"][-1].status = COLLECTION
         context.user_data["products"][-1].reserved = 0
         context.user_data["products"][-1].origin = ""
         context.user_data["pickup"].products.add(context.user_data["products"][-1].did)
-        await update.message.reply_text('Please send me a photo of the item.')
+        await update.message.reply_text(REPLY_ADD_PHOTO)
         return ADD_ITEM_PHOTO
-    elif update.message.text == 'Finish adding items':
+    elif update.message.text == BUTTON_FINISH_PICKUP:
         if not context.user_data["products"]:
             await update.message.reply_text('No items added.')
             return ConversationHandler.END
@@ -131,7 +146,7 @@ async def add_item_amount(update, context):
 
 async def add_item_info(update, context):
     context.user_data['products'][-1].description = update.message.text
-    keyboard = [[KeyboardButton('Add new item'), KeyboardButton('Finish adding items')]]
+    keyboard = [[KeyboardButton(BUTTON_ADD_ITEM), KeyboardButton(BUTTON_FINISH_PICKUP)]]
     reply_markup = ReplyKeyboardMarkup(keyboard, one_time_keyboard=True)
     context.user_data["products"][-1].add_to_db(firestore_db)
     await update.message.reply_text('Item added! What would you like to do next?', reply_markup=reply_markup)
