@@ -7,6 +7,8 @@ from fastapi import FastAPI, Body, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from typing import List
+
+from backend.frontend_structs import OrderResponse, OrderedProduct
 from export_to_pdf import prepare_order_for_export, export_to_pdf
 from backend.db_structs import Product, Order, Pickup
 from backend.db_handler import db_handler, get_all_products, get_all_orders, get_all_pickups
@@ -44,16 +46,32 @@ def get_info():
 def get_products():
     return get_all_products(firestore_db)
 
+
 @app.get("/get_orders")
-def get_orders():
+def get_orders() -> List[OrderResponse]:
+    response = []
     orders = get_all_orders(firestore_db)['Orders']
-    for o in orders:
-        keys = o["ordered_products"].keys()
-        res = []
+    for order in orders:
+        keys = order["ordered_products"].keys()
+        ordered_products_response = []
         for pid in keys:
-            res.append(Product.read_from_db(firestore_db, pid).dict())
-        o["ordered_products"] = res 
-    return orders
+            product = Product.read_from_db(firestore_db, pid)
+            ordered_products_response.append(OrderedProduct(
+                product=product,
+                amount=order["ordered_products"][pid]
+            ))
+        response.append(OrderResponse(
+            did=order["did"],
+            name=order["name"],
+            address=order["address"],
+            description=order["description"],
+            date=order["date"],
+            ordered_products=ordered_products_response,
+            status=order["status"])
+        )
+    return response
+
+
 
 @app.get("/get_pickups")
 def get_pickups():
@@ -86,16 +104,16 @@ def export_pdf_by_id(oid: str):
 # DATA EDITORS
 
 @app.post("/edit_product")
-def edit_product(Product: Product):
-    return Product.update_to_db(firestore_db)
+def edit_product(product: Product):
+    return product.update_to_db(firestore_db)
 
 @app.post("/edit_order")
-def edit_order(Order: Order):
-    return Order.update_to_db(firestore_db)
+def edit_order(order: Order):
+    return order.update_to_db(firestore_db)
 
 @app.post("/edit_pickup")
-def edit_pickup(Pickup: Pickup):
-    return Pickup.update_to_db(firestore_db)
+def edit_pickup(pickup: Pickup):
+    return pickup.update_to_db(firestore_db)
 
 # DATA ADDERS
 
@@ -112,8 +130,8 @@ def add_order(Order: Order):
     return Order.add_to_db(firestore_db)
 
 @app.post("/add_product_to_order")
-def add_product_to_order(pid: str = Body(...), 
-                         oid: str = Body(...), 
+def add_product_to_order(pid: str = Body(...),
+                         oid: str = Body(...),
                          amount: int = Body(...)):
     order = Order.read_from_db(firestore_db, oid)
     return order.add_product(firestore_db, pid, amount)

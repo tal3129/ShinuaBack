@@ -32,28 +32,24 @@ Orders:
 	- Amount (in order)
 }]
 """
-
-from enum import Enum
 from datetime import datetime
-from dataclasses import field 
-from typing import List, Union, Tuple
-from fastapi import FastAPI
-from pydantic.dataclasses import dataclass
-from db_structs import ProductStatus
+from typing import List
 
-@dataclass
-class Product:
-    pid: int
-    name: str
-    description: str
-    image_url_list: List[str]
-    status: ProductStatus
+from pydantic import BaseModel
+
+from db_structs import Product
+
+
+class OrderedProduct(BaseModel):
+    product: Product
     amount: int
-    origin: str
 
-@dataclass
-class Pickup():
+
+class OrderResponse(BaseModel):
+    did: str
     name: str
     address: str
+    description: str
     date: datetime
-    products: List[int]
+    status: int
+    ordered_products: List[OrderedProduct]
