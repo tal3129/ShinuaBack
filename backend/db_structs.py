@@ -26,6 +26,7 @@ from enum import IntEnum
 from typing import List, Dict, Set
 from pydantic import BaseModel
 
+
 # Collection names
 PRODUCT_COLLECTION = "Products"
 PICKUPS_COLLECTION = "Pickups"
@@ -114,6 +115,14 @@ class Product(BaseDB):
                 pickup.update_to_db(db_handler)
 
         return super().delete_from_db(db_handler)
+
+    def recalculate_reserved(self, db_handler):
+        orders = db_handler.get_collection_dict(ORDERS_COLLECTION)
+        self.reserved = 0
+        for order_dict in orders["Orders"]:
+            if self.did in order_dict['ordered_products']:
+                self.reserved += order_dict['ordered_products'][self.did]
+        self.update_to_db(db_handler)
 
 
 class Pickup(BaseDB):

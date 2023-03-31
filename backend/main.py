@@ -11,10 +11,10 @@ from typing import List
 from backend.frontend_structs import OrderResponse, OrderedProduct
 from export_to_pdf import prepare_order_for_export, export_to_pdf
 from backend.db_structs import Product, Order, Pickup
-from backend.db_handler import db_handler, get_all_products, get_all_orders, get_all_pickups
+from backend.db_handler import DBHandler, get_all_products, get_all_orders, get_all_pickups
 
 app = FastAPI()
-firestore_db = db_handler()
+firestore_db = DBHandler()
 
 origins = ["*"]
 app.add_middleware(
@@ -109,7 +109,19 @@ def edit_product(product: Product):
 
 @app.post("/edit_order")
 def edit_order(order: Order):
-    return order.update_to_db(firestore_db)
+    # Check if one of the ordered product has changed and recalculate the reserved amount properly
+    old_order = Order.read_from_db(firestore_db, order.did)
+    if old_order is None:
+        raise HTTPException(status_code=400, detail='Order not found')
+
+    order.update_to_db(firestore_db)
+
+    for pid in order.ordered_products.keys():
+        if pid in old_order.ordered_products.keys() and order.ordered_products[pid] != old_order.ordered_products[pid]:
+            product = Product.read_from_db(firestore_db, pid)
+            product.recalculate_reserved(db_handler=firestore_db)
+            product.update_to_db(firestore_db)
+
 
 @app.post("/edit_pickup")
 def edit_pickup(pickup: Pickup):
