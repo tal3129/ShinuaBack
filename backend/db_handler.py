@@ -56,7 +56,7 @@ class db_handler():
         return blob.public_url
 
     def get_all_pickups(db_handler):
-    return db_handler.get_collection_dict(PICKUPS_COLLECTION)
+        return db_handler.get_collection_dict(PICKUPS_COLLECTION)
 
     def get_number_of_pickups_by_date(db_handler, amount_of_pickups):
         return db_handler.get_collection_by_date_limit_dict(PICKUPS_COLLECTION, amount_of_pickups)
