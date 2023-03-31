@@ -105,6 +105,7 @@ def export_pdf_by_id(oid: str):
 
 @app.post("/edit_product")
 def edit_product(product: Product):
+    product.recalculate_reserved(db_handler=firestore_db)
     return product.update_to_db(firestore_db)
 
 @app.post("/edit_order")

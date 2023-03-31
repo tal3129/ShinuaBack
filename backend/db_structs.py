@@ -84,6 +84,16 @@ class Product(BaseDB):
 
     def move_to_inventory(self, db_handler):
         self.status = ProductStatus.STORAGE
+
+        # Delete from pickups
+        pickups = db_handler.get_collection_dict(PICKUPS_COLLECTION)
+        for pickup_dict in pickups["Pickups"]:
+            if self.did in pickup_dict["products"]:
+                pickup = Pickup.read_from_db(db_handler, pickup_dict["did"])
+                pickup.products.remove(self.did)
+                pickup.update_to_db(db_handler)
+                break
+
         self.update_to_db(db_handler)
         return 0
 
