@@ -105,6 +105,7 @@ def export_pdf_by_id(oid: str):
 
 @app.post("/edit_product")
 def edit_product(product: Product):
+    product.recalculate_reserved(db_handler=firestore_db)
     return product.update_to_db(firestore_db)
 
 @app.post("/edit_order")
@@ -187,4 +188,4 @@ def move_products_to_inventory(pids: List[str] = Body(..., embed=True)):
 @app.post("/mark_order_as_done")
 def nark_order_as_done(oid: str = Body(..., embed=True)):
     order = Order.read_from_db(firestore_db, oid)
-    return order.move_to_inventory(firestore_db)
+    return order.mark_as_done(firestore_db)
