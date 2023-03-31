@@ -157,12 +157,12 @@ class Order(BaseDB):
         return 0
 
     def delete_from_db(self, db_handler):
-        for pid, c in self.ordered_products:
-            prod = Product.read_from_db(pid)
+        for pid, c in self.ordered_products.items():
+            prod = Product.read_from_db(db_handler, pid)
             prod.reserved -= c
-            prod.update_to_db()
+            prod.update_to_db(db_handler)
             
-        return super().delete_document()
+        return super().delete_from_db(db_handler)
 
     @staticmethod
     def COLLECTION_NAME():
