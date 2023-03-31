@@ -40,8 +40,9 @@ class ProductStatus(IntEnum):
 
 
 # OrderStatus
-ORDER_IN_PROGRESS = 0
-ORDER_DONE = 1
+class OrderStatus(IntEnum):
+    ORDER_IN_PROGRESS = 0
+    ORDER_DONE = 1
 
 
 class BaseDB(BaseModel):
@@ -155,12 +156,18 @@ class Order(BaseDB):
     status: int
 
     def mark_as_done(self, db_handler):
-        for pid, c in self.ordered_products:
-            prod = Product.read_from_db(pid)
-            prod.reserved -= c
+        """
+        Mark order as done, and update products amount
+        :param db_handler: DBHandler
+        :return:
+        """
+        for pid, c in self.ordered_products.items():
+            prod = Product.read_from_db(db_handler, pid)
             prod.amount -= c
-            prod.update_to_db()
-        self.status = ORDER_DONE
+            prod.reserved -= c
+            prod.update_to_db(db_handler)
+
+        self.status = OrderStatus.ORDER_DONE
         self.update_to_db(db_handler)
         return 0
 
