@@ -121,17 +121,19 @@ def add_product_to_order(pid: str = Body(...),
 # DATA DELETORS
 
 @app.post("/delete_product")
-def delete_product(pid: str = Body(..., embed=True)):
-    product = Product.read_from_db(firestore_db, pid)
+def delete_product(did: str = Body(..., embed=True)):
+    product = Product.read_from_db(firestore_db, did)
     return product.delete_from_db(firestore_db)
 
 @app.post("/delete_pickup")
-def delete_product(Pickup: Pickup):
-    return Pickup.delete_from_db(firestore_db)
+def delete_pickup(did: str):
+    pickup = Pickup.read_from_db(firestore_db, did)
+    return pickup.delete_from_db(firestore_db)
 
 @app.post("/delete_order")
-def delete_product(Order: Order):
-    return Order.delete_from_db(firestore_db)
+def delete_order(did: str):
+    order = Order.read_from_db(firestore_db, did)
+    return order.delete_from_db(firestore_db)
 
 # STATUS CHANGERS
 @app.post("/move_product_to_inventory")
