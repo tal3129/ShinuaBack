@@ -122,6 +122,12 @@ def edit_order(order: Order):
             product.recalculate_reserved(db_handler=firestore_db)
             product.update_to_db(firestore_db)
 
+    for pid in old_order.ordered_products.keys():
+        if pid not in order.ordered_products.keys():
+            product = Product.read_from_db(firestore_db, pid)
+            product.recalculate_reserved(db_handler=firestore_db)
+            product.update_to_db(firestore_db)
+
 
 @app.post("/edit_pickup")
 def edit_pickup(pickup: Pickup):
