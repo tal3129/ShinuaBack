@@ -93,16 +93,21 @@ class Product(BaseDB):
         return False
 
     def delete_from_db(self, db_handler):
-        for o in db_handler.get_collection_dict(ORDERS_COLLECTION):
-            if self.did in o.ordered_products:
-                o.ordered_products.pop(self.did)
-                o.update_to_db()
-        for p in db_handler.get_collection_dict(PICKUPS_COLLECTION):
-            if self.did in p.products:
-                p.products.remove(self.did)
-                p.update_to_db()
+        orders = db_handler.get_collection_dict(ORDERS_COLLECTION)
+        for order_dict in orders["Orders"]:
+            if self.did in order_dict['ordered_products']:
+                order = Order.read_from_db(db_handler, order_dict["did"])
+                order.ordered_products.pop(self.did)
+                order.update_to_db(db_handler)
+
+        pickups = db_handler.get_collection_dict(PICKUPS_COLLECTION)
+        for pickup_dict in pickups["Pickups"]:
+            if self.did in pickup_dict["products"]:
+                pickup = Pickup.read_from_db(db_handler, pickup_dict["did"])
+                pickup.products.remove(self.did)
+                pickup.update_to_db(db_handler)
             
-        return super().delete_document()
+        return super().delete_from_db(db_handler)
 
 class Pickup(BaseDB):
     name: str
