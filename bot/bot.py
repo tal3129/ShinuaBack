@@ -16,25 +16,26 @@ from telegram.ext import (
 from backend.db_structs import ProductStatus
 
 # Firebase credentials and app initialization
-CHOOSE_PICKUP_TYPE = 'Do you want to start a new pickup or continue an old one?'
-CHOOSE_NEW_PICKUP = "New pickup"
-CHOOSE_OLD_PICKUP = "Continue pickup"
-CHOOSE_ADD_ITEM = "Add new item"
-CHOOSE_FINISH_ADD_ITEMS = "Finish adding items"
-CANCEL_PICKUP = "Pickup creation cancelled."
-ITEM_ADDED_SUCCESSFULLY = "Item added! What would you like to do next?"
-ITEM_DESCRIPTION = "Any additional information about this item? (Please enter a text or skip)"
-ITEM_AMOUNT = "What is the amount of this item? (Please enter a number)"
-ITEM_NAME = "What is the name of this item?"
-PICKUP_SAVED = "Pickup information saved. Thank you!"
-NO_ITEMS_ADDED = "No items added."
-ITEM_PICTURE = "Please send me a photo of the item."
-CHOOSE_PICKUP_TO_CONTINUE = 'Which pickup would you like to continue?'
-GET_COMPANY_NAME_FROM_USER = "What is the name of the company?"
-GET_ADDRESS_FROM_USER = 'What is the pickup address?'
-GET_NEW_ITEMS_FROM_USER = 'Great! Now you can start adding items to the pickup. What would you like to do?'
+
+CHOOSE_PICKUP_TYPE = "האם אתה רוצה להתחיל איסוף חדש או להמשיך איסוף קיים?"
+CHOOSE_NEW_PICKUP = "התחל איסוף חדש"
+CHOOSE_OLD_PICKUP = "המשך איסוף קיים"
+CHOOSE_ADD_ITEM = "הוסף מוצר חדש"
+CHOOSE_FINISH_ADD_ITEMS = "סיים הוספת מוצרים"
+CANCEL_PICKUP = "יצירת איסוף חדש בוטלה"
+ITEM_ADDED_SUCCESSFULLY = "מוצר חדש נוסף! מה תרצה לעשות עכשיו?"
+ITEM_DESCRIPTION = "האם יש מידע נוסף שתרצה לשמור על המוצר הזה? (תכניס מידע נוסף או תרשום דלג)"
+ITEM_AMOUNT = "הכנס כמות פריטים מהמוצר הזה (בבקשה הכנס מספר)"
+ITEM_NAME = "מה השם של המוצר הזה?"
+PICKUP_SAVED = "מידע על איסוף חדש נשמר. תודה רבה!"
+NO_ITEMS_ADDED = "לא נוספו מוצרים."
+ITEM_PICTURE = "בבקשה תשלח תמונה של המוצר."
+CHOOSE_PICKUP_TO_CONTINUE = 'איזה איסוף תרצה להמשיך?'
+GET_COMPANY_NAME_FROM_USER = "מה השם של החברה?"
+GET_ADDRESS_FROM_USER = 'מה השם של הכתובת ממנה אוספים?'
+GET_NEW_ITEMS_FROM_USER = 'מעולה! אתה יכול להתחיל להוסיף עכשיו מוצרים לאיסוף. מה תרצה לעשות?'
 OLD_PICKUPS_AMOUNT_TO_GET = 3
-TELEGRAM_BOT_TOKEN = "6281123162:AAEm29V4M8K8PU0M27zw61OR32lFtlKByGE"
+TELEGRAM_BOT_TOKEN = "5600448819:AAG2L0Z2k7BEIU3qP6MTY3gswW3GWoIFrWM"
 firestore_db = db_handler()
 
 DEFAULT_PRODUCT_DICT = {'description': '', 'image_url_list': [], 'reserved': 0, 'origin': '', 'status': 0, 'amount': 0,
