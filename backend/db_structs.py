@@ -25,6 +25,7 @@ from datetime import datetime
 from enum import IntEnum
 from typing import List, Dict, Set
 from pydantic import BaseModel
+from fastapi import HTTPException
 
 
 # Collection names
@@ -56,7 +57,7 @@ class BaseDB(BaseModel):
     def read_from_db(cls, db_handler, did):
         doc = db_handler.get_document(cls.COLLECTION_NAME(), did)
         if doc is None:
-            raise Exception('No such document')
+            raise HTTPException(status_code=404, detail='Document not found')
         return cls(did=did, **doc)
 
     def _values_dict(self):

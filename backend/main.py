@@ -47,7 +47,7 @@ def get_products():
     return get_all_products(firestore_db)
 
 
-@app.get("/get_orders")
+@app.get("/orders")
 def get_orders() -> List[OrderResponse]:
     response = []
     orders = get_all_orders(firestore_db)['Orders']
@@ -71,7 +71,28 @@ def get_orders() -> List[OrderResponse]:
         )
     return response
 
-
+@app.get("/orders/{oid}")
+def get_order(oid: str):
+    order = Order.read_from_db(firestore_db, oid)
+    if order is None:
+        raise HTTPException(status_code=400, detail='Order not found')
+    keys = order.ordered_products.keys()
+    ordered_products_response = []
+    for pid in keys:
+        product = Product.read_from_db(firestore_db, pid)
+        ordered_products_response.append(OrderedProduct(
+            product=product,
+            amount=order.ordered_products[pid]
+        ))
+    return OrderResponse(
+        did=order.did,
+        name=order.name,
+        address=order.address,
+        description=order.description,
+        date=order.date,
+        ordered_products=ordered_products_response,
+        status=order.status
+    )
 
 @app.get("/get_pickups")
 def get_pickups():
@@ -108,10 +129,13 @@ def edit_product(product: Product):
     product.recalculate_reserved(db_handler=firestore_db)
     return product.update_to_db(firestore_db)
 
-@app.post("/edit_order")
-def edit_order(order: Order):
+@app.put("/orders/{oid}")
+def edit_order(oid: str, order: Order):
     # Check if one of the ordered product has changed and recalculate the reserved amount properly
-    old_order = Order.read_from_db(firestore_db, order.did)
+    if oid != order.did:
+        raise HTTPException(status_code=400, detail='Order id cannot be changed')
+    
+    old_order = Order.read_from_db(firestore_db, oid)
     if old_order is None:
         raise HTTPException(status_code=400, detail='Order not found')
 
