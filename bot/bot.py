@@ -1,18 +1,19 @@
-import telegram
+import datetime
+import os
+from uuid import uuid4
+
+from db_handler import db_handler, get_number_of_pickups_by_date
+from db_structs import Product, Pickup
 from telegram import ReplyKeyboardMarkup, KeyboardButton
 from telegram.ext import (
     Application,
     CommandHandler,
-    ContextTypes,
     ConversationHandler,
     MessageHandler,
     filters,
 )
-from db_handler import db_handler, get_number_of_pickups_by_date
-from db_structs import Product, Pickup, COLLECTION
-from uuid import uuid4
-import os
-import datetime
+
+from backend.db_structs import ProductStatus
 
 # Firebase credentials and app initialization
 CHOOSE_PICKUP_TYPE = 'Do you want to start a new pickup or continue an old one?'
@@ -36,10 +37,13 @@ OLD_PICKUPS_AMOUNT_TO_GET = 3
 TELEGRAM_BOT_TOKEN = "6281123162:AAEm29V4M8K8PU0M27zw61OR32lFtlKByGE"
 firestore_db = db_handler()
 
-DEFAULT_PRODUCT_DICT = {'description': '', 'image_url_list': [], 'reserved': 0, 'origin': '', 'status': 0, 'amount': 0, 'name': ''}
-DEFAULT_PICKUP_DICT = {'name':'', 'address':'', 'date': datetime.datetime.now(), 'products':set()}
+DEFAULT_PRODUCT_DICT = {'description': '', 'image_url_list': [], 'reserved': 0, 'origin': '', 'status': 0, 'amount': 0,
+                        'name': ''}
+DEFAULT_PICKUP_DICT = {'name': '', 'address': '', 'date': datetime.datetime.now(), 'products': set()}
 # Conversation states
-START_PICKUP, CONTINUE_PICKUP, ADD_COMPANY_NAME, ADD_ADDRESS, ADD_ITEMS, ADD_ITEM_PHOTO, ADD_ITEM_NAME, ADD_ITEM_AMOUNT, ADD_ITEM_INFO = range(9)
+START_PICKUP, CONTINUE_PICKUP, ADD_COMPANY_NAME, ADD_ADDRESS, ADD_ITEMS, ADD_ITEM_PHOTO, ADD_ITEM_NAME, ADD_ITEM_AMOUNT, ADD_ITEM_INFO = range(
+    9)
+
 
 async def start_pickup(update, context):
     keyboard = [[KeyboardButton(CHOOSE_NEW_PICKUP), KeyboardButton(CHOOSE_OLD_PICKUP)]]
@@ -47,10 +51,12 @@ async def start_pickup(update, context):
     await update.message.reply_text(CHOOSE_PICKUP_TYPE, reply_markup=reply_markup)
     return START_PICKUP
 
+
 async def started_new_pickup(update, context):
-    context.user_data["pickup"] = Pickup(did="0",**(DEFAULT_PICKUP_DICT))
+    context.user_data["pickup"] = Pickup(did="0", **(DEFAULT_PICKUP_DICT))
     await update.message.reply_text(GET_COMPANY_NAME_FROM_USER)
     return ADD_COMPANY_NAME
+
 
 def get_old_pickups(amount_of_pickups):
     return get_number_of_pickups_by_date(firestore_db, amount_of_pickups)
@@ -67,6 +73,7 @@ def create_continue_pickup_buttons(old_pickups):
          keyboard_buttons.append([KeyboardButton(pickup_name)])
     return keyboard_buttons
 
+
 async def select_old_pickup(update, context):
     old_pickups = get_old_pickups(OLD_PICKUPS_AMOUNT_TO_GET)
     old_pickups_dict = create_pickups_dict(old_pickups)
@@ -76,6 +83,7 @@ async def select_old_pickup(update, context):
     await update.message.reply_text(CHOOSE_PICKUP_TO_CONTINUE, reply_markup=reply_markup)
     return CONTINUE_PICKUP
 
+
 async def continued_old_pickup(update, context):
     context.user_data["pickup"] = Pickup(**(context.user_data["pickups"][update.message.text]))
     context.user_data["products"] = [] 
@@ -84,11 +92,13 @@ async def continued_old_pickup(update, context):
     await update.message.reply_text(GET_NEW_ITEMS_FROM_USER, reply_markup=reply_markup)
     return ADD_ITEMS
 
+
 async def add_company_name(update, context):
     context.user_data["pickup"].name = update.message.text
     context.user_data["pickup"].date = datetime.datetime.now()
     await update.message.reply_text(GET_ADDRESS_FROM_USER)
     return ADD_ADDRESS
+
 
 async def add_address(update, context):
     context.user_data["pickup"].address = update.message.text
@@ -97,6 +107,7 @@ async def add_address(update, context):
     reply_markup = ReplyKeyboardMarkup(keyboard, one_time_keyboard=True, input_field_placeholder=GET_NEW_ITEMS_FROM_USER)
     await update.message.reply_text(GET_NEW_ITEMS_FROM_USER, reply_markup=reply_markup)
     return ADD_ITEMS
+
 
 async def add_items(update, context):
     query = update.callback_query
@@ -119,6 +130,7 @@ async def add_items(update, context):
             await update.message.reply_text(PICKUP_SAVED)
             return ConversationHandler.END
 
+
 async def add_item_photo(update, context):
     user = update.message.from_user
     photo_file = await update.message.photo[-1].get_file()
@@ -134,15 +146,18 @@ async def add_item_photo(update, context):
     )
     return ADD_ITEM_NAME
 
+
 async def add_item_name(update, context):
     context.user_data['products'][-1].name = update.message.text
     await update.message.reply_text(ITEM_AMOUNT)
     return ADD_ITEM_AMOUNT
 
+
 async def add_item_amount(update, context):
     context.user_data['products'][-1].amount = update.message.text
     await update.message.reply_text(ITEM_DESCRIPTION)
     return ADD_ITEM_INFO
+
 
 async def add_item_info(update, context):
     context.user_data['products'][-1].description = update.message.text
@@ -152,12 +167,13 @@ async def add_item_info(update, context):
     await update.message.reply_text(ITEM_ADDED_SUCCESSFULLY, reply_markup=reply_markup)
     return ADD_ITEMS
 
+
 async def cancel(update, context):
     await update.message.reply_text(CANCEL_PICKUP)
     return ConversationHandler.END
 
+
 def main():
-    
     application = Application.builder().token(TELEGRAM_BOT_TOKEN).build()
     # Create a ConversationHandler with states
     conv_handler = ConversationHandler(
@@ -186,4 +202,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-   
