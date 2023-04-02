@@ -2,8 +2,9 @@ import datetime
 import os
 from uuid import uuid4
 
-from db_handler import db_handler, get_number_of_pickups_by_date
-from db_structs import Product, Pickup
+from backend.db_handler import DBHandler, get_number_of_pickups_by_date
+from backend.db_structs import ProductStatus
+from backend.db_structs import Product, Pickup 
 from telegram import ReplyKeyboardMarkup, KeyboardButton
 from telegram.ext import (
     Application,
@@ -36,7 +37,7 @@ GET_ADDRESS_FROM_USER = 'מה השם של הכתובת ממנה אוספים?'
 GET_NEW_ITEMS_FROM_USER = 'מעולה! אתה יכול להתחיל להוסיף עכשיו מוצרים לאיסוף. מה תרצה לעשות?'
 OLD_PICKUPS_AMOUNT_TO_GET = 3
 TELEGRAM_BOT_TOKEN = "5600448819:AAG2L0Z2k7BEIU3qP6MTY3gswW3GWoIFrWM"
-firestore_db = db_handler()
+firestore_db = DBHandler()
 
 DEFAULT_PRODUCT_DICT = {'description': '', 'image_url_list': [], 'reserved': 0, 'origin': '', 'status': 0, 'amount': 0,
                         'name': ''}
@@ -116,7 +117,7 @@ async def add_items(update, context):
         query.answer()
     if update.message.text == CHOOSE_ADD_ITEM:
         context.user_data["products"].append(Product(did="0",**(DEFAULT_PRODUCT_DICT)))
-        context.user_data["products"][-1].status = COLLECTION
+        context.user_data["products"][-1].status = ProductStatus.COLLECTION
         context.user_data["products"][-1].reserved = 0
         context.user_data["products"][-1].origin = ""
         context.user_data["pickup"].products.add(context.user_data["products"][-1].did)
