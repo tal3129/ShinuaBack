@@ -23,8 +23,9 @@ Order:
 """
 from datetime import datetime
 from enum import IntEnum
-from typing import List, Dict, Set
+from typing import List, Dict, Set, Optional
 from pydantic import BaseModel
+from fastapi import HTTPException
 
 
 # Collection names
@@ -46,7 +47,7 @@ class OrderStatus(IntEnum):
 
 
 class BaseDB(BaseModel):
-    did: str
+    did: Optional[str] = None
 
     @staticmethod
     def COLLECTION_NAME():
@@ -56,7 +57,7 @@ class BaseDB(BaseModel):
     def read_from_db(cls, db_handler, did):
         doc = db_handler.get_document(cls.COLLECTION_NAME(), did)
         if doc is None:
-            raise Exception('No such document')
+            raise HTTPException(status_code=404, detail='Document not found')
         return cls(did=did, **doc)
 
     def _values_dict(self):
@@ -146,6 +147,30 @@ class Pickup(BaseDB):
     def COLLECTION_NAME():
         return PICKUPS_COLLECTION
 
+    def move_to_inventory(self, db_handler):
+        """
+        Move all products to inventory and delete pickup
+        :param db_handler: DBHandler
+        :return:
+        """
+        for pid in self.products:
+            prod = Product.read_from_db(db_handler, pid)
+            prod.move_to_inventory(db_handler)
+        self.delete_from_db(db_handler)
+        return 0
+
+    def delete_with_products(self, db_handler):
+        """
+        Delete pickup and all products
+        :param db_handler: DBHandler
+        :return:
+        """
+        for pid in self.products:
+            prod = Product.read_from_db(db_handler, pid)
+            prod.delete_from_db(db_handler)
+        self.delete_from_db(db_handler)
+        return 0
+
 
 class Order(BaseDB):
     name: str
@@ -191,12 +216,12 @@ class Order(BaseDB):
         return 0
 
     def delete_from_db(self, db_handler):
-        for pid, c in self.ordered_products.items():
-            prod = Product.read_from_db(db_handler, pid)
-            prod.reserved -= c
-            prod.update_to_db(db_handler)
+        result = super().delete_from_db(db_handler)
 
-        return super().delete_from_db(db_handler)
+        for product_id, _ in self.ordered_products.items():
+            product = Product.read_from_db(db_handler, product_id)
+            product.recalculate_reserved(db_handler)
+        return result
 
     @staticmethod
     def COLLECTION_NAME():

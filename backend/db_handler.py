@@ -16,8 +16,22 @@ class DBHandler:
     def get_collection(self, collection):
         return self.db.collection(collection)
 
+    def delete_everything_in_collection(self, collection):
+        docs = self.get_collection(collection).stream()
+        for doc in docs:
+            doc.reference.delete()
+
     def get_collection_dict(self, collection):
         cols = self.get_collection(collection).stream()
+        all_items = []
+        for col in cols:
+            item = {"did": col.id}
+            item.update(col.to_dict())
+            all_items.append(item)
+        return {f"{collection}": all_items}
+
+    def get_collection_dict_with_filter(self, collection, filter_key, filter_value):
+        cols = self.get_collection(collection).where(filter_key, "==", filter_value).stream()
         all_items = []
         for col in cols:
             item = {"did": col.id}

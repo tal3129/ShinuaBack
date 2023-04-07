@@ -2,15 +2,15 @@
 This file handles all the routes (relevant to backend)
 Should only route requests from frontend and communicate with backend logic to return PYDANTIC objects
 """
-
+import uvicorn
 from fastapi import FastAPI, Body, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
-from typing import List
+from typing import List, Optional
 
 from backend.frontend_structs import OrderResponse, OrderedProduct
 from export_to_pdf import prepare_order_for_export, export_to_pdf
-from backend.db_structs import Product, Order, Pickup
+from backend.db_structs import Product, Order, Pickup, ProductStatus, PRODUCT_COLLECTION
 from backend.db_handler import DBHandler, get_all_products, get_all_orders, get_all_pickups
 
 app = FastAPI()
@@ -42,12 +42,15 @@ def get_info():
 
 # DATA RETRIEVERS
 
-@app.get("/get_catalog")
-def get_products():
-    return get_all_products(firestore_db)
+@app.get("/products")
+def get_products(status: Optional[ProductStatus] = None):
+    if status is None:
+        return get_all_products(firestore_db)
+    else:
+        return firestore_db.get_collection_dict_with_filter(PRODUCT_COLLECTION, "status", status.value)
 
 
-@app.get("/get_orders")
+@app.get("/orders")
 def get_orders() -> List[OrderResponse]:
     response = []
     orders = get_all_orders(firestore_db)['Orders']
@@ -71,9 +74,43 @@ def get_orders() -> List[OrderResponse]:
         )
     return response
 
+@app.get("/orders/{oid}")
+def get_order(oid: str):
+    order = Order.read_from_db(firestore_db, oid)
+    if order is None:
+        raise HTTPException(status_code=400, detail='Order not found')
+    keys = order.ordered_products.keys()
+    ordered_products_response = []
+    for pid in keys:
+        product = Product.read_from_db(firestore_db, pid)
+        ordered_products_response.append(OrderedProduct(
+            product=product,
+            amount=order.ordered_products[pid]
+        ))
+    return OrderResponse(
+        did=order.did,
+        name=order.name,
+        address=order.address,
+        description=order.description,
+        date=order.date,
+        ordered_products=ordered_products_response,
+        status=order.status
+    )
 
 
-@app.get("/get_pickups")
+@app.get("/pickups/{pid}")
+def get_pickup(pid: str):
+    pickup = Pickup.read_from_db(firestore_db, pid)
+    if pickup is None:
+        raise HTTPException(status_code=400, detail='Pickup not found')
+    res = []
+    for pid in pickup.products:
+        res.append(Product.read_from_db(firestore_db, pid).dict())
+    pickup.products = res
+    return pickup
+
+
+@app.get("/pickups")
 def get_pickups():
     pickups = get_all_pickups(firestore_db)['Pickups']
     for p in pickups:
@@ -83,7 +120,7 @@ def get_pickups():
         p["products"] = res
     return pickups
 
-@app.get("/get_product/{pid}")
+@app.get("/products/{pid}")
 def get_product_by_id(pid: str):
     return Product.read_from_db(firestore_db, pid)
 
@@ -93,25 +130,32 @@ def get_product_by_id(pid: str):
     response_class=Response
 )
 def export_pdf_by_id(oid: str):
-    try:
-        order = Order.read_from_db(firestore_db, oid)
-        order_dict = prepare_order_for_export(order, firestore_db)
-    except Exception:
-        raise HTTPException(status_code=404, detail='Object not found')
+    order = Order.read_from_db(firestore_db, oid)
+    order_dict = prepare_order_for_export(order, firestore_db)
     print(order_dict)
     return Response(content=export_to_pdf(order_dict), media_type='application/pdf')
 
 # DATA EDITORS
 
-@app.post("/edit_product")
-def edit_product(product: Product):
+@app.post("/products/{pid}")
+def edit_product(pid: str, product: Product):
+    if pid != product.did:
+        raise HTTPException(status_code=400, detail='Product id cannot be changed')
+
+    old_product = Product.read_from_db(firestore_db, pid)
+    if old_product is None:
+        raise HTTPException(status_code=400, detail='Product not found')
+
     product.recalculate_reserved(db_handler=firestore_db)
     return product.update_to_db(firestore_db)
 
-@app.post("/edit_order")
-def edit_order(order: Order):
+@app.put("/orders/{oid}")
+def edit_order(oid: str, order: Order):
     # Check if one of the ordered product has changed and recalculate the reserved amount properly
-    old_order = Order.read_from_db(firestore_db, order.did)
+    if oid != order.did:
+        raise HTTPException(status_code=400, detail='Order id cannot be changed')
+    
+    old_order = Order.read_from_db(firestore_db, oid)
     if old_order is None:
         raise HTTPException(status_code=400, detail='Order not found')
 
@@ -130,8 +174,14 @@ def edit_order(order: Order):
             product.update_to_db(firestore_db)
 
 
-@app.post("/edit_pickup")
-def edit_pickup(pickup: Pickup):
+@app.post("/pickups/{pickup_id}")
+def edit_pickup(pickup_id: str, pickup: Pickup):
+    if pickup_id != pickup.did:
+        raise HTTPException(status_code=400, detail='Pickup id cannot be changed')
+
+    old_pickup = Pickup.read_from_db(firestore_db, pickup_id)
+    if old_pickup is None:
+        raise HTTPException(status_code=400, detail='Pickup not found')
     return pickup.update_to_db(firestore_db)
 
 # DATA ADDERS
@@ -144,7 +194,7 @@ def add_product(Product: Product):
 def add_pickup(Pickup: Pickup):
     return Pickup.add_to_db(firestore_db)
 
-@app.post("/add_order")
+@app.post("/orders")
 def add_order(Order: Order):
     return Order.add_to_db(firestore_db)
 
@@ -157,19 +207,19 @@ def add_product_to_order(pid: str = Body(...),
 
 # DATA DELETORS
 
-@app.post("/delete_product")
-def delete_product(did: str = Body(..., embed=True)):
-    product = Product.read_from_db(firestore_db, did)
+@app.delete("/products/{pid}")
+def delete_product(pid: str):
+    product = Product.read_from_db(firestore_db, pid)
     return product.delete_from_db(firestore_db)
 
-@app.post("/delete_pickup")
-def delete_pickup(did: str = Body(..., embed=True)):
+@app.delete("/pickups/{did}")
+def delete_pickup(did: str):
     pickup = Pickup.read_from_db(firestore_db, did)
-    return pickup.delete_from_db(firestore_db)
+    return pickup.delete_with_products(firestore_db)
 
-@app.post("/delete_order")
-def delete_order(did: str = Body(..., embed=True)):
-    order = Order.read_from_db(firestore_db, did)
+@app.delete("/orders/{oid}")
+def delete_order(oid: str):
+    order = Order.read_from_db(firestore_db, oid)
     return order.delete_from_db(firestore_db)
 
 # STATUS CHANGERS
@@ -185,7 +235,16 @@ def move_products_to_inventory(pids: List[str] = Body(..., embed=True)):
         product.move_to_inventory(firestore_db)
     return "Moved"
 
+@app.post("/pickups/{pickup_id}/move_to_inventory")
+def move_pickup_to_inventory(pickup_id: str):
+    pickup = Pickup.read_from_db(firestore_db, pickup_id)
+    return pickup.move_to_inventory(firestore_db)
+
 @app.post("/mark_order_as_done")
 def nark_order_as_done(oid: str = Body(..., embed=True)):
     order = Order.read_from_db(firestore_db, oid)
     return order.mark_as_done(firestore_db)
+
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)
