@@ -8,7 +8,6 @@ env = Environment(
 )
 
 WKHTMLTOPDF_BIN_PATH = r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe'
-config = pdfkit.configuration(wkhtmltopdf=WKHTMLTOPDF_BIN_PATH)
 
 def prepare_order_for_export(order: Order, db_handler) -> dict:
     order_dict = order.dict()
@@ -21,7 +20,7 @@ def prepare_order_for_export(order: Order, db_handler) -> dict:
 
 def export_to_pdf(order: dict):
     html = env.get_template('receipt_src.jinja').render(order)
-    return pdfkit.from_string(html, configuration=config)
+    return pdfkit.from_string(html)
 
 def main():
     order = {
