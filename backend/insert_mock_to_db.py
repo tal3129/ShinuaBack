@@ -2,7 +2,8 @@ import random
 from datetime import datetime, timedelta
 
 from db_handler import DBHandler
-from db_structs import Product, Pickup, Order, ProductStatus, OrderStatus
+from db_structs import Product, Pickup, Order, ProductStatus, OrderStatus, PRODUCT_COLLECTION, PICKUPS_COLLECTION, \
+    ORDERS_COLLECTION
 
 db_handler = DBHandler()
 
@@ -81,6 +82,12 @@ def insert_random_orders(num_orders: int, num_products_per_order: int):
             product.recalculate_reserved(db_handler)
 
     return orders
+
+
+def reset_db():
+    db_handler.delete_everything_in_collection(collection=PRODUCT_COLLECTION)
+    db_handler.delete_everything_in_collection(collection=PICKUPS_COLLECTION)
+    db_handler.delete_everything_in_collection(collection=ORDERS_COLLECTION)
 
 
 def main():

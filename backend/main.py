@@ -215,7 +215,7 @@ def delete_product(pid: str):
 @app.delete("/pickups/{did}")
 def delete_pickup(did: str):
     pickup = Pickup.read_from_db(firestore_db, did)
-    return pickup.delete_from_db(firestore_db)
+    return pickup.delete_with_products(firestore_db)
 
 @app.delete("/orders/{oid}")
 def delete_order(oid: str):

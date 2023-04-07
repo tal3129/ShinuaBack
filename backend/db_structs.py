@@ -159,6 +159,18 @@ class Pickup(BaseDB):
         self.delete_from_db(db_handler)
         return 0
 
+    def delete_with_products(self, db_handler):
+        """
+        Delete pickup and all products
+        :param db_handler: DBHandler
+        :return:
+        """
+        for pid in self.products:
+            prod = Product.read_from_db(db_handler, pid)
+            prod.delete_from_db(db_handler)
+        self.delete_from_db(db_handler)
+        return 0
+
 
 class Order(BaseDB):
     name: str
