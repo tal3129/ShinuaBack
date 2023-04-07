@@ -147,6 +147,18 @@ class Pickup(BaseDB):
     def COLLECTION_NAME():
         return PICKUPS_COLLECTION
 
+    def move_to_inventory(self, db_handler):
+        """
+        Move all products to inventory and delete pickup
+        :param db_handler: DBHandler
+        :return:
+        """
+        for pid in self.products:
+            prod = Product.read_from_db(db_handler, pid)
+            prod.move_to_inventory(db_handler)
+        self.delete_from_db(db_handler)
+        return 0
+
 
 class Order(BaseDB):
     name: str

@@ -25,6 +25,15 @@ class DBHandler:
             all_items.append(item)
         return {f"{collection}": all_items}
 
+    def get_collection_dict_with_filter(self, collection, filter_key, filter_value):
+        cols = self.get_collection(collection).where(filter_key, "==", filter_value).stream()
+        all_items = []
+        for col in cols:
+            item = {"did": col.id}
+            item.update(col.to_dict())
+            all_items.append(item)
+        return {f"{collection}": all_items}
+
     def get_document(self, collection, document_id):
         return self.get_collection(collection).document(document_id).get().to_dict()
 

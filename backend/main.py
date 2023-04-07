@@ -6,11 +6,11 @@ Should only route requests from frontend and communicate with backend logic to r
 from fastapi import FastAPI, Body, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
-from typing import List
+from typing import List, Optional
 
 from backend.frontend_structs import OrderResponse, OrderedProduct
 from export_to_pdf import prepare_order_for_export, export_to_pdf
-from backend.db_structs import Product, Order, Pickup
+from backend.db_structs import Product, Order, Pickup, ProductStatus, PRODUCT_COLLECTION
 from backend.db_handler import DBHandler, get_all_products, get_all_orders, get_all_pickups
 
 app = FastAPI()
@@ -42,9 +42,12 @@ def get_info():
 
 # DATA RETRIEVERS
 
-@app.get("/get_catalog")
-def get_products():
-    return get_all_products(firestore_db)
+@app.get("/products")
+def get_products(status: Optional[ProductStatus] = None):
+    if status is None:
+        return get_all_products(firestore_db)
+    else:
+        return firestore_db.get_collection_dict_with_filter(PRODUCT_COLLECTION, "status", status.value)
 
 
 @app.get("/orders")
@@ -234,6 +237,11 @@ def move_products_to_inventory(pids: List[str] = Body(..., embed=True)):
         product = Product.read_from_db(firestore_db, pid)
         product.move_to_inventory(firestore_db)
     return "Moved"
+
+@app.post("/pickups/{pickup_id}/move_to_inventory")
+def move_pickup_to_inventory(pickup_id: str):
+    pickup = Pickup.read_from_db(firestore_db, pickup_id)
+    return pickup.move_to_inventory(firestore_db)
 
 @app.post("/mark_order_as_done")
 def nark_order_as_done(oid: str = Body(..., embed=True)):
