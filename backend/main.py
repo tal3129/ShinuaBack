@@ -2,7 +2,7 @@
 This file handles all the routes (relevant to backend)
 Should only route requests from frontend and communicate with backend logic to return PYDANTIC objects
 """
-
+import uvicorn
 from fastapi import FastAPI, Body, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
@@ -130,11 +130,8 @@ def get_product_by_id(pid: str):
     response_class=Response
 )
 def export_pdf_by_id(oid: str):
-    try:
-        order = Order.read_from_db(firestore_db, oid)
-        order_dict = prepare_order_for_export(order, firestore_db)
-    except Exception:
-        raise HTTPException(status_code=404, detail='Object not found')
+    order = Order.read_from_db(firestore_db, oid)
+    order_dict = prepare_order_for_export(order, firestore_db)
     print(order_dict)
     return Response(content=export_to_pdf(order_dict), media_type='application/pdf')
 
@@ -247,3 +244,7 @@ def move_pickup_to_inventory(pickup_id: str):
 def nark_order_as_done(oid: str = Body(..., embed=True)):
     order = Order.read_from_db(firestore_db, oid)
     return order.mark_as_done(firestore_db)
+
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)
