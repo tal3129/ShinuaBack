@@ -199,12 +199,12 @@ def delete_product(pid: str):
     product = Product.read_from_db(firestore_db, pid)
     return product.delete_from_db(firestore_db)
 
-@app.post("/delete_pickup")
-def delete_pickup(did: str = Body(..., embed=True)):
+@app.delete("/pickups/{did}")
+def delete_pickup(did: str):
     pickup = Pickup.read_from_db(firestore_db, did)
     return pickup.delete_from_db(firestore_db)
 
-@app.post("/orders/{oid}")
+@app.delete("/orders/{oid}")
 def delete_order(oid: str):
     order = Order.read_from_db(firestore_db, oid)
     return order.delete_from_db(firestore_db)

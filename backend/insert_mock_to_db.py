@@ -2,8 +2,7 @@ import random
 from datetime import datetime, timedelta
 
 from db_handler import DBHandler
-from db_structs import Product, Pickup, Order, ProductStatus
-
+from db_structs import Product, Pickup, Order, ProductStatus, OrderStatus
 
 db_handler = DBHandler()
 
@@ -56,12 +55,34 @@ def insert_random_pickups(num_pickups: int, num_products_per_pickup: int):
     return pickups
 
 
+def insert_random_orders(num_orders: int, num_products_per_order: int):
+    orders = []
+    for i in range(num_orders):
+        name = f"הזמנה {i}"
+        address = f"כתובת {i}"
+        description = f"תיאור {i}"
+        status = OrderStatus.ORDER_IN_PROGRESS
+        date = datetime.now() + timedelta(days=random.randint(-10, -1))
+        products = insert_random_products(num_products=num_products_per_order, is_for_pickup=False)
+        products_dids = [product.did for product in products]
+        print(products_dids)
+        order = Order(
+            name=name, address=address, description=description, status=status, date=date,
+            ordered_products={
+                product.did: random.randint(1, 10) for product in products
+            }
+        )
+        orders.append(order)
+
+    for order in orders:
+        did = order.add_to_db(db_handler)
+        order.did = did
+    return orders
+
+
 def main():
-    insert_random_pickups(num_pickups=2, num_products_per_pickup=2)
-    # products = create_random_products(num_products=2)
-    # print(products)
-    # for product in products:
-    #     product.add_to_db(db_handler)
+    # insert_random_pickups(num_pickups=2, num_products_per_pickup=2)
+    insert_random_orders(num_orders=2, num_products_per_order=2)
 
 
 if __name__ == '__main__':

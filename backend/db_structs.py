@@ -192,12 +192,12 @@ class Order(BaseDB):
         return 0
 
     def delete_from_db(self, db_handler):
-        for pid, c in self.ordered_products.items():
-            prod = Product.read_from_db(db_handler, pid)
-            prod.reserved -= c
-            prod.update_to_db(db_handler)
+        result = super().delete_from_db(db_handler)
 
-        return super().delete_from_db(db_handler)
+        for product_id, _ in self.ordered_products.items():
+            product = Product.read_from_db(db_handler, product_id)
+            product.recalculate_reserved(db_handler)
+        return result
 
     @staticmethod
     def COLLECTION_NAME():
