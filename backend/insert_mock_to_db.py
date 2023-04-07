@@ -1,3 +1,4 @@
+import json
 import random
 from datetime import datetime, timedelta
 
@@ -6,25 +7,43 @@ from db_structs import Product, Pickup, Order, ProductStatus, OrderStatus, PRODU
     ORDERS_COLLECTION
 
 db_handler = DBHandler()
+random_products_names_and_descriptions = json.load(open("random_products_heb.json", "rb"))
 
 
-def random_image_url():
-    return f"https://picsum.photos/seed/{random.randint(0, 2000)}/500/500"
+def random_image_urls(amount: int):
+    """
+    Return a list of random image urls
+    :param amount: number of urls to return
+    :return: list of urls
+    """
+    urls = []
+    for _ in range(amount):
+        urls.append(f"https://picsum.photos/seed/{random.randint(0, 2000)}/500/500")
+    return urls
+
+
+def random_product_name_and_description():
+    """
+    Name and description for a random product in Hebrew
+    :return:
+    """
+    return random.choice(random_products_names_and_descriptions)
 
 
 def create_random_products(num_products: int, is_for_pickup: bool = False):
     products = []
     for i in range(num_products):
-        name = f"מוצר {i}"
-        description = f"תיאור עבור מוצר {i}"
-        image_url = random_image_url()
+        random_product = random_product_name_and_description()
+        name = random_product["name"]
+        description = random_product["description"]
+        image_urls = random_image_urls(amount=3)
         # status = random.randint(0, 1)
         status = ProductStatus.COLLECTION if is_for_pickup else ProductStatus.STORAGE
         amount = random.randint(10, 100)
         # reserved = random.randint(0, amount)
         reserved = 0
         origin = f"Origin for product {i}"
-        product = Product(name=name, description=description, image_url_list=[image_url],
+        product = Product(name=name, description=description, image_url_list=image_urls,
                           status=status, amount=amount, reserved=reserved, origin=origin)
         products.append(product)
     return products
