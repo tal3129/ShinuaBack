@@ -23,7 +23,7 @@ Order:
 """
 from datetime import datetime
 from enum import IntEnum
-from typing import List, Dict, Set
+from typing import List, Dict, Set, Optional
 from pydantic import BaseModel
 from fastapi import HTTPException
 
@@ -47,7 +47,7 @@ class OrderStatus(IntEnum):
 
 
 class BaseDB(BaseModel):
-    did: str
+    did: Optional[str] = None
 
     @staticmethod
     def COLLECTION_NAME():
