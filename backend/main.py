@@ -94,7 +94,7 @@ def get_order(oid: str):
         status=order.status
     )
 
-@app.get("/get_pickups")
+@app.get("/pickups")
 def get_pickups():
     pickups = get_all_pickups(firestore_db)['Pickups']
     for p in pickups:
@@ -104,7 +104,7 @@ def get_pickups():
         p["products"] = res
     return pickups
 
-@app.get("/get_product/{pid}")
+@app.get("/products/{pid}")
 def get_product_by_id(pid: str):
     return Product.read_from_db(firestore_db, pid)
 
@@ -124,8 +124,15 @@ def export_pdf_by_id(oid: str):
 
 # DATA EDITORS
 
-@app.post("/edit_product")
-def edit_product(product: Product):
+@app.post("/products/{pid}")
+def edit_product(pid: str, product: Product):
+    if pid != product.did:
+        raise HTTPException(status_code=400, detail='Product id cannot be changed')
+
+    old_product = Product.read_from_db(firestore_db, pid)
+    if old_product is None:
+        raise HTTPException(status_code=400, detail='Product not found')
+
     product.recalculate_reserved(db_handler=firestore_db)
     return product.update_to_db(firestore_db)
 
@@ -154,8 +161,14 @@ def edit_order(oid: str, order: Order):
             product.update_to_db(firestore_db)
 
 
-@app.post("/edit_pickup")
-def edit_pickup(pickup: Pickup):
+@app.post("/pickups/{pickup_id}")
+def edit_pickup(pickup_id: str, pickup: Pickup):
+    if pickup_id != pickup.did:
+        raise HTTPException(status_code=400, detail='Pickup id cannot be changed')
+
+    old_pickup = Pickup.read_from_db(firestore_db, pickup_id)
+    if old_pickup is None:
+        raise HTTPException(status_code=400, detail='Pickup not found')
     return pickup.update_to_db(firestore_db)
 
 # DATA ADDERS
@@ -168,7 +181,7 @@ def add_product(Product: Product):
 def add_pickup(Pickup: Pickup):
     return Pickup.add_to_db(firestore_db)
 
-@app.post("/add_order")
+@app.post("/orders")
 def add_order(Order: Order):
     return Order.add_to_db(firestore_db)
 
@@ -181,9 +194,9 @@ def add_product_to_order(pid: str = Body(...),
 
 # DATA DELETORS
 
-@app.post("/delete_product")
-def delete_product(did: str = Body(..., embed=True)):
-    product = Product.read_from_db(firestore_db, did)
+@app.delete("/products/{pid}")
+def delete_product(pid: str):
+    product = Product.read_from_db(firestore_db, pid)
     return product.delete_from_db(firestore_db)
 
 @app.post("/delete_pickup")
@@ -191,9 +204,9 @@ def delete_pickup(did: str = Body(..., embed=True)):
     pickup = Pickup.read_from_db(firestore_db, did)
     return pickup.delete_from_db(firestore_db)
 
-@app.post("/delete_order")
-def delete_order(did: str = Body(..., embed=True)):
-    order = Order.read_from_db(firestore_db, did)
+@app.post("/orders/{oid}")
+def delete_order(oid: str):
+    order = Order.read_from_db(firestore_db, oid)
     return order.delete_from_db(firestore_db)
 
 # STATUS CHANGERS
