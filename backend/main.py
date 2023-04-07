@@ -94,6 +94,19 @@ def get_order(oid: str):
         status=order.status
     )
 
+
+@app.get("/pickups/{pid}")
+def get_pickup(pid: str):
+    pickup = Pickup.read_from_db(firestore_db, pid)
+    if pickup is None:
+        raise HTTPException(status_code=400, detail='Pickup not found')
+    res = []
+    for pid in pickup.products:
+        res.append(Product.read_from_db(firestore_db, pid).dict())
+    pickup.products = res
+    return pickup
+
+
 @app.get("/pickups")
 def get_pickups():
     pickups = get_all_pickups(firestore_db)['Pickups']

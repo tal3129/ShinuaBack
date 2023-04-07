@@ -72,17 +72,20 @@ def insert_random_orders(num_orders: int, num_products_per_order: int):
                 product.did: random.randint(1, 10) for product in products
             }
         )
-        orders.append(order)
 
-    for order in orders:
         did = order.add_to_db(db_handler)
         order.did = did
+        orders.append(order)
+
+        for product in products:
+            product.recalculate_reserved(db_handler)
+
     return orders
 
 
 def main():
-    # insert_random_pickups(num_pickups=2, num_products_per_pickup=2)
-    insert_random_orders(num_orders=2, num_products_per_order=2)
+    insert_random_pickups(num_pickups=1, num_products_per_pickup=5)
+    # insert_random_orders(num_orders=2, num_products_per_order=2)
 
 
 if __name__ == '__main__':
